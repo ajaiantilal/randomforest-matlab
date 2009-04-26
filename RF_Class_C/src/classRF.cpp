@@ -81,7 +81,12 @@ extern uint32 randomMT(void);
  * int *, int *, int *);
  */
 extern "C"{
+    #ifdef WIN64
+    void _buildtree_(int *a, int *b, int *cl, int *cat,
+    #endif
+    #ifndef WIN64
     void buildtree_(int *a, int *b, int *cl, int *cat,
+    #endif
             int *maxcat, int *mdim, int *nsample,
             int *nclass, int *treemap, int *bestvar,
             int *bestsplit, int *bestsplitnext,
@@ -95,7 +100,13 @@ extern "C"{
 }
 
 extern "C"{
+    #ifdef WIN64
+    void _rrand_(double *r) ;
+    #endif 
+    
+    #ifndef WIN64
     void rrand_(double *r) ;
+    #endif     
 }
 
 
@@ -118,7 +129,14 @@ void TestSetError(double *countts, int *jts, int *clts, int *jet, int ntest,
         int labelts, int *nclts, double *cutoff);
 
 /*  Define the R RNG for use from Fortran. */
+#ifdef WIN64
+void _rrand_(double *r) { *r = unif_rand(); }
+#endif
+
+#ifndef WIN64
 void rrand_(double *r) { *r = unif_rand(); }
+#endif
+
 
 void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
         int *sampsize, int *strata, int *Options, int *ntree, int *nvar,
@@ -422,7 +440,14 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             memcpy(a, at, sizeof(int) * mdim * nsample);
             modA(a, &nuse, nsample, mdim, cat, *maxcat, ncase, jin);
             
-            F77_CALL(buildtree)(a, b, cl, cat, maxcat, &mdim, &nsample,
+            #ifdef WIN64
+            F77_CALL(_buildtree)
+            #endif
+                    
+            #ifndef WIN64
+            F77_CALL(buildtree)
+            #endif        
+            (a, b, cl, cat, maxcat, &mdim, &nsample,
                     &nclass,
                     treemap + 2*idxByNnode, bestvar + idxByNnode,
                     bestsplit, bestsplitnext, tgini,

@@ -12,6 +12,13 @@ function compile_windows
     fprintf('I am going to use the precompiled fortran file\n');
     fprintf('If it doesnt work then use cygwin+g77 (or gfortran) to recompile rfsub.f\n');
 
-    mex  -DMATLAB -output mexClassRF_train   src/classRF.cpp src/classTree.cpp src/cokus.cpp rfsub.o src/mex_ClassificationRF_train.cpp   src/rfutils.cpp 
-    mex  -DMATLAB -output mexClassRF_predict src/classRF.cpp src/classTree.cpp src/cokus.cpp rfsub.o src/mex_ClassificationRF_predict.cpp src/rfutils.cpp 
+    if strcmp(computer,'PCWIN64')
+        mex  -DMATLAB  -output mexClassRF_train   src/classRF.cpp src/classTree.cpp src/cokus.cpp precompiled_rfsub/win64/rfsub.o src/mex_ClassificationRF_train.cpp   src/rfutils.cpp 
+        mex  -DMATLAB  -output mexClassRF_predict src/classRF.cpp src/classTree.cpp src/cokus.cpp precompiled_rfsub/win64/rfsub.o src/mex_ClassificationRF_predict.cpp src/rfutils.cpp 
+    elseif strcmp(computer,'PCWIN')
+        mex  -DMATLAB -output mexClassRF_train   src/classRF.cpp src/classTree.cpp src/cokus.cpp precompiled_rfsub/win32/rfsub.o src/mex_ClassificationRF_train.cpp   src/rfutils.cpp 
+        mex  -DMATLAB -output mexClassRF_predict src/classRF.cpp src/classTree.cpp src/cokus.cpp precompiled_rfsub/win32/rfsub.o src/mex_ClassificationRF_predict.cpp src/rfutils.cpp 
+    else
+        error('Wrong script to run on this Comp architecture. I cannot detect any windows system')
+    end
     fprintf('Mex`s compiled correctly\n')
