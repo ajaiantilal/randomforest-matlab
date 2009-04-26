@@ -47,19 +47,42 @@ extern double unif_rand();
 extern void R_qsort_I(double *v, int *I, int i, int j);
 
 extern "C"{
+    #ifdef WIN64
+	void _catmax_(double *parentDen, double *tclasscat,
+                      double *tclasspop, int *nclass, int *lcat,
+                      int *ncatsp, double *critmax, int *nhit,
+                      int *maxcat, int *ncmax, int *ncsplit);
+    #endif
+    
+    #ifndef WIN64
 	void catmax_(double *parentDen, double *tclasscat,
                       double *tclasspop, int *nclass, int *lcat,
                       int *ncatsp, double *critmax, int *nhit,
                       int *maxcat, int *ncmax, int *ncsplit);
+    #endif                
 }
 extern "C"{
+    #ifdef WIN64
+	void _catmaxb_(double *totalWt, double *tclasscat, double *classCount,
+                       int *nclass, int *nCat, int *nbest, double *critmax,
+                       int *nhit, double *catCount) ;
+    #endif
+            
+    #ifndef WIN64
 	void catmaxb_(double *totalWt, double *tclasscat, double *classCount,
                        int *nclass, int *nCat, int *nbest, double *critmax,
                        int *nhit, double *catCount) ;
+    #endif
 }
 
+#ifdef WIN64
+void F77_NAME(_catmax)
+#endif
 
-void F77_NAME(catmax)(double *parentDen, double *tclasscat,
+#ifndef WIN64
+void F77_NAME(catmax)
+#endif
+(double *parentDen, double *tclasscat,
                       double *tclasspop, int *nclass, int *lcat,
                       int *ncatsp, double *critmax, int *nhit,
                       int *maxcat, int *ncmax, int *ncsplit) {
@@ -121,7 +144,13 @@ void F77_NAME(catmax)(double *parentDen, double *tclasscat,
 
 
 /* Find best split of with categorical variable when there are two classes */
-void F77_NAME(catmaxb)(double *totalWt, double *tclasscat, double *classCount,
+#ifdef WIN64
+void F77_NAME(_catmaxb)
+#endif
+#ifndef WIN64
+void F77_NAME(catmaxb)
+#endif
+(double *totalWt, double *tclasscat, double *classCount,
                        int *nclass, int *nCat, int *nbest, double *critmax,
                        int *nhit, double *catCount) {
 
