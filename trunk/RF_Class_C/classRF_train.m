@@ -8,22 +8,68 @@
 % A wrapper matlab file that calls the mex file
 % This does training given the data and labels 
 % number of trees is the third option (Optional) which is set to 500 if not
-% supplied
+% supplied. Documentation copied from R-packages pdf 
+% http://cran.r-project.org/web/packages/randomForest/randomForest.pdf 
 %**************************************************************
-%function model = classRF_train(X,Y,ntree,mtry)
-%requires 2 arguments and the rest 2 are optional
-%X: data matrix
-%Y: target values
-%ntree (optional): number of trees (default is 500)
-%mtry (default is floor(sqrt(size(X,2))) D=number of features in X)
+% function model = classRF_train(X,Y,ntree,mtry, extra_options)
+% requires 2 arguments and the rest 3 are optional
+% X: data matrix
+% Y: target values 
+% ntree (optional): number of trees (default is 500). also if set to 0
+%           will default to 500
+% mtry (default is floor(sqrt(size(X,2))) D=number of features in X). also if set to 0
+%           will default to 500
+%
+%
+% Note: TRUE = 1 and FALSE = 0 below
+% extra_options represent a structure containing various misc. options to
+%      control the RF
+%  extra_options.replace = 0 or 1 (default is 1) sampling with or without
+%                           replacement
+%  extra_options.classwt = priors of classes. Here the function first gets
+%                       the labels in ascending order and assumes the
+%                       priors are given in the same order. So if the class
+%                       labels are [-1 1 2] and classwt is [0.1 2 3] then
+%                       there is a 1-1 correspondence. (ascending order of
+%                       class labels). Once this is set the freq of labels in
+%                       train data also affects.
+%  extra_options.cutoff (Classification only) = A vector of length equal to number of classes. The ?winning?
+%                       class for an observation is the one with the maximum ratio of proportion
+%                       of votes to cutoff. Default is 1/k where k is the number of classes (i.e., majority
+%                       vote wins). 
+%  extra_options.strata = (not yet stable in code) variable that is used for stratified
+%                       sampling. I don't yet know how this works. Disabled
+%                       by default
+%  extra_options.sampsize =  Size(s) of sample to draw. For classification, 
+%                   if sampsize is a vector of the length the number of strata, then sampling is stratified by strata, 
+%                   and the elements of sampsize indicate the numbers to be drawn from the strata. I don't yet know how this works.
+%  extra_options.nodesize = Minimum size of terminal nodes. Setting this number larger causes smaller trees
+%                   to be grown (and thus take less time). Note that the default values are different
+%                   for classification (1) and regression (5).
+%  extra_options.importance =  Should importance of predictors be assessed?
+%  extra_options.localImp = Should casewise importance measure be computed? (Setting this to TRUE will
+%                   override importance.)
+%  extra_options.proximity = Should proximity measure among the rows be calculated?
+%  extra_options.oob_prox = Should proximity be calculated only on 'out-of-bag' data?
+%  extra_options.do_trace = If set to TRUE, give a more verbose output as randomForest is run. If set to
+%                   some integer, then running output is printed for every
+%                   do_trace trees.
+%  extra_options.keep_inbag Should an n by ntree matrix be returned that keeps track of which samples are
+%                   'in-bag' in which trees (but not how many times, if sampling with replacement)
+%
+% Options eliminated
+% corr_bias which happens only for regression ommitted
+% norm_votes - always set to return total votes for each class.
+
 
 function model=classRF_train(X,Y,ntree,mtry, extra_options)
-    DEBUG_ON=0;
+    DEFAULTS_ON =0;
+    %DEBUG_ON=0;
 
     TRUE=1;
     FALSE=0;
     
-    orig_labels = unique(Y);
+    orig_labels = sort(unique(Y));
     Y_new = Y;
     new_labels = 1:length(orig_labels);
     
@@ -35,6 +81,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     Y = Y_new;
     
     if exist('extra_options','var')
+        if isfield(extra_options,'DEBUG_ON');  DEBUG_ON = extra_options.DEBUG_ON;    end
         if isfield(extra_options,'replace');  replace = extra_options.replace;       end
         if isfield(extra_options,'classwt');  classwt = extra_options.classwt;       end
         if isfield(extra_options,'cutoff');  cutoff = extra_options.cutoff;       end
@@ -46,23 +93,24 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         if isfield(extra_options,'nPerm');  nPerm = extra_options.nPerm;       end
         if isfield(extra_options,'proximity');  proximity = extra_options.proximity;       end
         if isfield(extra_options,'oob_prox');  oob_prox = extra_options.oob_prox;       end
-        if isfield(extra_options,'norm_votes');  norm_votes = extra_options.norm_votes;       end
+        %if isfield(extra_options,'norm_votes');  norm_votes = extra_options.norm_votes;       end
         if isfield(extra_options,'do_trace');  do_trace = extra_options.do_trace;       end
-        if isfield(extra_options,'corr_bias');  corr_bias = extra_options.corr_bias;       end
+        %if isfield(extra_options,'corr_bias');  corr_bias = extra_options.corr_bias;       end
         if isfield(extra_options,'keep_inbag');  keep_inbag = extra_options.keep_inbag;       end
     end
     keep_forest=1; %always save the trees :)
     
     %set defaults if not already set
+    if ~exist('DEBUG_ON','var')     DEBUG_ON=FALSE; end
     if ~exist('replace','var');     replace = TRUE; end
     %if ~exist('classwt','var');     classwt = []; end %will handle these three later
     %if ~exist('cutoff','var');      cutoff = 1; end    
     %if ~exist('strata','var');      strata = 1; end
     if ~exist('sampsize','var');    
-        if (replace); 
-            sampsize = size(X,2); 
+        if (replace) 
+            sampsize = size(X,1); 
         else
-            sampsize = ceil(0.632*size(X,2));
+            sampsize = ceil(0.632*size(X,1));
         end; 
     end
     if ~exist('nodesize','var');    nodesize = 1; end %classification=1, regression=5
@@ -71,16 +119,17 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     if ~exist('nPerm','var');       nPerm = 1; end
     %if ~exist('proximity','var');   proximity = 1; end  %will handle these two later
     %if ~exist('oob_prox','var');    oob_prox = 1; end
-    if ~exist('norm_votes','var');    norm_votes = TRUE; end
+    %if ~exist('norm_votes','var');    norm_votes = TRUE; end
     if ~exist('do_trace','var');    do_trace = FALSE; end
-    if ~exist('corr_bias','var');   corr_bias = FALSE; end
+    %if ~exist('corr_bias','var');   corr_bias = FALSE; end
     if ~exist('keep_inbag','var');  keep_inbag = FALSE; end
     
 
-    if ~exist('ntree','var') | ntree<0
+    if ~exist('ntree','var') | ntree<=0
 		ntree=500;
+        DEFAULTS_ON=1;
     end
-    if ~exist('mtry','var') | mtry<0 | mtry>size(X,2)
+    if ~exist('mtry','var') | mtry<=0 | mtry>size(X,2)
         mtry =floor(sqrt(size(X,2)));
     end
     
@@ -93,11 +142,15 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     
     if N==0; error(' data (X) has 0 rows');end
     
-        
-    if (mtry <1 | mtry > D)
-        warning('range for mtry out of limts, setting to within limits')
+    if (mtry <1 || mtry > D)
+        DEFAULTS_ON=1;
     end
+    
     mtry = max(1,min(D,round(mtry)));
+    
+    if DEFAULTS_ON
+        fprintf('\tSetting to defaults %d trees and mtry=%d\n',ntree,mtry);
+    end
     
     if ~isempty(Y)
         if length(Y)~=N,    
@@ -251,6 +304,8 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         fprintf('size(sampsize) %d\n',size(sampsize));
         fprintf('sampsize[0] %d\n',sampsize(1));
         fprintf('Stratify %d\n',Stratify);
+        fprintf('Proximity %d\n',proximity);
+        fprintf('oob_prox %d\n',oob_prox);
         fprintf('strata %d\n',strata);
         fprintf('ntree %d\n',ntree);
         fprintf('mtry %d\n',mtry);
@@ -261,9 +316,10 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     end    
     
     
-    [nrnodes,ntree,xbestsplit,classwt,cutoff,treemap,nodestatus,nodeclass,bestvar,ndbigtree,mtry] ...
+    [nrnodes,ntree,xbestsplit,classwt,cutoff,treemap,nodestatus,nodeclass,bestvar,ndbigtree,mtry ...
+        outcl, counttr, prox, impmat, impout, impSD, errtr, inbag] ...
         = mexClassRF_train(X',int32(Y_new),length(unique(Y)),ntree,mtry,int32(ncat), ... 
-                           int32(maxcat), int32(sampsize), strata, Options, ipi, ...
+                           int32(maxcat), int32(sampsize), strata, Options, int32(ipi), ...
                            classwt, cutoff, int32(nodesize),int32(nsum));
  	model.nrnodes=nrnodes;
  	model.ntree=ntree;
@@ -279,6 +335,18 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     model.orig_labels=orig_labels;
     model.new_labels=new_labels;
     model.nclass = length(unique(Y));
+    model.outcl = outcl;
+    model.counttr = counttr;
+    if proximity
+        model.proximity = prox;
+    else
+        model.proximity = [];
+    end
+    model.localImp = impmat;
+    model.importance = impout;
+    model.importanceSD = impSD;
+    model.errtr = errtr;
+    model.inbag = inbag;
  	clear mexClassRF_train
     %keyboard
     1;

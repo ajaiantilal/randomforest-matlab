@@ -44,14 +44,17 @@ void createClass(double *x, int realN, int totalN, int mdim) {
     }
 }
 
+#include "stdio.h"
 void normClassWt(int *cl, const int nsample, const int nclass, 
                  const int useWt, double *classwt, int *classFreq) {
     int i;
     double sumwt = 0.0;
-    
+    //printf("useWt %d",useWt);
     if (useWt) {
+        //printf("User supplied via priors classwt");
         /* Normalize user-supplied weights so they sum to one. */
         for (i = 0; i < nclass; ++i) sumwt += classwt[i];
+        //printf("\n sumwt %f",sumwt);
         for (i = 0; i < nclass; ++i) classwt[i] /= sumwt;
     } else {
         for (i = 0; i < nclass; ++i) {

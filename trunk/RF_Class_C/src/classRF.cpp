@@ -277,8 +277,11 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     zeroInt(classFreq, nclass);
     for (n = 0; n < nsample; ++n) classFreq[cl[n] - 1] ++;
     /* Normalize class weights. */
+    //Rprintf("ipi %d ",*ipi);
+    //for(n=0;n<nclass;n++) Rprintf("%d: %d, %f,",n,classFreq[n],classwt[n]);
     normClassWt(cl, nsample, nclass, *ipi, classwt, classFreq);
-    
+    //for(n=0;n<nclass;n++) Rprintf("%d: %d, %f,",n,classFreq[n],classwt[n]);
+   
     if (stratify) {
         /* Count number of strata and frequency of each stratum. */
         nstrata = 0;
