@@ -1,4 +1,5 @@
 #include <math.h>
+#include <memory.h>
 #include "mex.h"
 
 #define DEBUG_ON 0
@@ -17,16 +18,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		  int nrhs, const mxArray*prhs[] )
      
 { 
-	if(nrhs==3 | nrhs==4 | nrhs==5);
+	if(nrhs==15);
     else{
 		printf("Too less parameters: You supplied %d",nrhs);
 		return;
 	}
     
+    double *_tmp_d;
         
     int i;
     int p_size = mxGetM(prhs[0]);
-    int n_size = mxGetN(prhs[0]);int nsample=n_size;
+    int n_size = mxGetN(prhs[0]);
     double *x = mxGetPr(prhs[0]);
     int *y = (int*)mxGetData(prhs[1]);
     int dimx[]={p_size, n_size};
@@ -39,73 +41,100 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
     int nclass = (int)((double)mxGetScalar(prhs[2]));
 	double nclass_d = ((double)mxGetScalar(prhs[2]));
-    int* cat = (int*)calloc(p_size,sizeof(int));
-    for(i=0;i<p_size;i++) cat[i]=1;
+    int* cat = (int*)mxGetData(prhs[5]);//calloc(p_size,sizeof(int));
+                                        //for(i=0;i<p_size;i++) cat[i]=1;
     
     
 	if (DEBUG_ON){ mexPrintf("n_size %d, p_size %d, nclass %d (%f)",n_size,p_size,nclass,(double)mxGetScalar(prhs[2]));}
 	fflush(stdout);
-    int maxcat=1;
-    int sampsize=n_size;
-    int nsum = sampsize;
-    int strata = 1;
-    int addclass = 0;
-    int importance=0;
-    int localImp=0;
-    int proximity=0;
-    int oob_prox=0;
-    int do_trace;
+    int maxcat=*((int*)mxGetData(prhs[6]));
+    int* sampsize=(int*)mxGetData(prhs[7]);
+    int nsum = *((int*)mxGetData(prhs[14]));
+    int* strata = (int*)mxGetData(prhs[8]);
+    //int Options[]={addclass,importance,localImp,proximity,oob_prox,do_trace,keep_forest,replace,stratify,keep_inbag};
+    int* Options = (int*)mxGetData(prhs[9]);
+    
+    // now get individual values from the options so they can be decomposed and appropriate
+    // array sizes can be set.
+    int addclass = Options[0];
+    int importance=Options[1];
+    int localImp  =Options[2];
+    int proximity =Options[3];
+    int oob_prox  =Options[4];
+    int do_trace  =Options[5];
     if (DEBUG_ON){ do_trace=1;} else {do_trace=0;}    
-    int keep_forest=1;
-    int replace=1;
-    int stratify=0;
-    int keep_inbag=0;
-    int Options[]={addclass,importance,localImp,proximity,oob_prox
-     ,do_trace,keep_forest,replace,stratify,keep_inbag};
+    int keep_forest=Options[6];
+    int replace   =Options[7];
+    int stratify  =Options[8];
+    int keep_inbag=Options[9];
+    
+    int nsample;
+    if(addclass)
+        nsample = 2*n_size;
+    else
+        nsample = n_size;
+    
     
      
-    int ntree=-1;
-    int mtry=-1;
-    if (nrhs==4 || nrhs==5){
-        ntree = (int)mxGetScalar(prhs[3]);
-    }
-    
-    if (nrhs==5){
-       mtry =  (int)mxGetScalar(prhs[4]);
-    }
-    
-    if (ntree<0)
-        ntree=500;
-            
-    if (mtry<0)
-        mtry = (int)floor((float)sqrt((float)p_size));
-    
-    mexPrintf("\nntree %d, mtry=%d\n",ntree,mtry);
+    int ntree;
+    int mtry;
+    ntree = (int)mxGetScalar(prhs[3]);
+    mtry =  (int)mxGetScalar(prhs[4]);
+        
+    if (DEBUG_ON) mexPrintf("\nntree %d, mtry=%d\n",ntree,mtry);
     
     int nt=ntree;
-    int ipi=0; // ipi:      0=use class proportion as prob.; 1=use supplied priors
+    int ipi=*((int*)mxGetData(prhs[10])); // ipi:      0=use class proportion as prob.; 1=use supplied priors
     plhs[10] = mxCreateDoubleScalar(mtry);
-    //double* classwt=(double*)calloc(nclass,sizeof(double));
     plhs[3] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
-    double *classwt = (double*) mxGetData(plhs[3]);
+    _tmp_d = (double*) mxGetData(plhs[3]);
+    double *classwt = (double*) mxGetData(prhs[11]);
     
-    //double* cutoff=(double*)calloc(nclass,sizeof(double));
+    //NOW COPY THE CLASSWT'S
+    memcpy(_tmp_d,classwt,nclass*sizeof(double));
+    
+    
     plhs[4] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
-    double *cutoff = (double*) mxGetData(plhs[4]);
+    _tmp_d = (double*) mxGetData(plhs[4]);
+    double *cutoff = (double*) mxGetData(prhs[12]);
 
+    //NOW COPY THE CUTOFF's
+    memcpy(_tmp_d,cutoff,nclass*sizeof(double));
     
     for(i=0;i<nclass;i++){
-        classwt[i]=1;
-        cutoff[i]=1/((double)nclass);
+        //classwt[i]=1;
+        //cutoff[i]=1/((double)nclass);
 		if (DEBUG_ON){printf("%f,",cutoff[i]);}
     }
-    int nodesize=1;
+    int nodesize=*((int*) mxGetData(prhs[13]));
     int* outcl=(int*) calloc(nsample,sizeof(int));
     int* counttr=(int*) calloc(nclass*nsample,sizeof(int));
-    double prox=1;
-    double* impout=(double*)calloc(p_size,sizeof(double));
-    double impSD=1;
-    double impmat=1; 
+    
+    double* prox;
+    if (proximity){
+        prox = (double*) calloc(nsample*nsample,sizeof(double));
+    }else{
+        prox = (double*) calloc(1,sizeof(double));
+        prox[0]=1;
+    }
+    double* impout;
+    double* impmat; 
+    double* impSD;
+    
+    if (localImp){
+        impmat = (double*) calloc(n_size*p_size,sizeof(double));
+    }else{
+        impmat = (double*) calloc(1,sizeof(double));
+        impmat[0]=1;
+    }
+        
+    if (importance){    
+        impout=(double*)calloc(p_size*(nclass+2),sizeof(double));
+        impSD =(double*)calloc(p_size*(nclass+1),sizeof(double));
+    }else{
+        impout=(double*)calloc(p_size,sizeof(double));
+        impSD =(double*)calloc(1,sizeof(double));
+    }
     int nrnodes = 2 * (int)(nsum / nodesize) + 1;
     
     if (DEBUG_ON) { mexPrintf("\nnrnodes=%d, nsum=%d, nodesize=%d, mtry=%d\n",nrnodes,nsum,nodesize,mtry);}
@@ -114,11 +143,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[9] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
     int *ndbigtree = (int*) mxGetData(plhs[9]);
     
-    
     //int* nodestatus = (int*) calloc(nt*nrnodes,sizeof(int));
     plhs[6] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
     int *nodestatus = (int*) mxGetData(plhs[6]);
-    
+
     //int* bestvar = (int*) calloc(nt*nrnodes,sizeof(int));
     plhs[8] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
     int *bestvar = (int*) mxGetData(plhs[8]);
@@ -136,6 +164,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //double* xbestsplit = (double*) calloc(nt * nrnodes,sizeof(double));
     plhs[2] = mxCreateNumericMatrix(nrnodes, nt, mxDOUBLE_CLASS, 0);
     double *xbestsplit = (double*) mxGetData(plhs[2]);
+
     
     double* errtr = (double*) calloc((nclass+1) * ntree,sizeof(double));
     int testdat=0;
@@ -147,7 +176,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int labelts=0;
     double proxts=1;
     double errts=1;
-    int* inbag = (int*) calloc(n_size,sizeof(int));
+    int* inbag;
+    if (keep_inbag)
+        inbag = (int*) calloc(n_size,sizeof(int));
+    else
+        inbag = (int*) calloc(n_size*ntree,sizeof(int));
     
     if (DEBUG_ON){
         //printf few of the values
@@ -158,9 +191,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[1] = mxCreateDoubleScalar(ntree);
 
     classRF(x, dimx, y, &nclass, cat, &maxcat,
-	     &sampsize, &strata, Options, &ntree, &mtry,&ipi, 
-         classwt, cutoff, &nodesize,outcl, counttr, &prox,
-	     impout, &impSD, &impmat, &nrnodes,ndbigtree, nodestatus, 
+	     sampsize, strata, Options, &ntree, &mtry,&ipi, 
+         classwt, cutoff, &nodesize,outcl, counttr, prox,
+	     impout, impSD, impmat, &nrnodes,ndbigtree, nodestatus, 
          bestvar, treemap,nodepred, xbestsplit, errtr,&testdat, 
          &xts, &clts, &nts, countts,&outclts, labelts, 
          &proxts, &errts,inbag);
@@ -168,9 +201,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
             
     
     
-    free(cat);
     free(outcl);
     free(counttr);
+    free(errtr);
+    free(countts);
+    free(inbag);
+    free(impout);
+    free(impmat);
+    free(impSD);
+    free(prox);
     
     // Below are allocated via matlab and will be needed for prediction
     //free(classwt);
@@ -182,8 +221,5 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //free(nodepred);
     //free(xbestsplit);
     
-    free(errtr);
-    free(countts);
-    free(inbag);
-    free(impout);
+    
 }
