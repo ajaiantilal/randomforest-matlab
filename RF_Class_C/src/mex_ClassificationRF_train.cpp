@@ -87,19 +87,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int ipi=*((int*)mxGetData(prhs[10])); // ipi:      0=use class proportion as prob.; 1=use supplied priors
     plhs[10] = mxCreateDoubleScalar(mtry);
     plhs[3] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
-    _tmp_d = (double*) mxGetData(plhs[3]);
-    double *classwt = (double*) mxGetData(prhs[11]);
+    double *classwt = (double*) mxGetData(plhs[3]);
+    _tmp_d = (double*) mxGetData(prhs[11]);
     
     //NOW COPY THE CLASSWT'S
-    memcpy(_tmp_d,classwt,nclass*sizeof(double));
+    memcpy(classwt,_tmp_d,nclass*sizeof(double));
     
     
     plhs[4] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
-    _tmp_d = (double*) mxGetData(plhs[4]);
-    double *cutoff = (double*) mxGetData(prhs[12]);
+    double *cutoff= (double*) mxGetData(plhs[4]);
+    _tmp_d = (double*) mxGetData(prhs[12]);
 
     //NOW COPY THE CUTOFF's
-    memcpy(_tmp_d,cutoff,nclass*sizeof(double));
+    memcpy(cutoff,_tmp_d,nclass*sizeof(double));
     
     for(i=0;i<nclass;i++){
         //classwt[i]=1;
@@ -107,14 +107,20 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		if (DEBUG_ON){printf("%f,",cutoff[i]);}
     }
     int nodesize=*((int*) mxGetData(prhs[13]));
-    int* outcl=(int*) calloc(nsample,sizeof(int));
-    int* counttr=(int*) calloc(nclass*nsample,sizeof(int));
+    
+    plhs[11] = mxCreateNumericMatrix(nsample, 1, mxINT32_CLASS, 0);
+    int* outcl=(int*) mxGetData(plhs[11]); //calloc(nsample,sizeof(int));
+    
+    plhs[12] = mxCreateNumericMatrix(nclass, nsample, mxINT32_CLASS, 0);
+    int* counttr=(int*) mxGetData(plhs[12]); //calloc(nclass*nsample,sizeof(int));
     
     double* prox;
     if (proximity){
-        prox = (double*) calloc(nsample*nsample,sizeof(double));
+        plhs[13] = mxCreateNumericMatrix(nsample, nsample, mxDOUBLE_CLASS, 0);
+        prox = (double*) mxGetData(plhs[13]); //calloc(nsample*nsample,sizeof(double));
     }else{
-        prox = (double*) calloc(1,sizeof(double));
+        plhs[13] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        prox = (double*) mxGetData(plhs[13]); //calloc(1,sizeof(double));
         prox[0]=1;
     }
     double* impout;
@@ -122,18 +128,26 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double* impSD;
     
     if (localImp){
-        impmat = (double*) calloc(n_size*p_size,sizeof(double));
+        plhs[14] = mxCreateNumericMatrix(n_size, p_size, mxDOUBLE_CLASS, 0);
+        impmat = (double*) mxGetData(plhs[14]); //calloc(n_size*p_size,sizeof(double));
     }else{
-        impmat = (double*) calloc(1,sizeof(double));
+        plhs[14] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        impmat = (double*) mxGetData(plhs[14]); //calloc(1,sizeof(double));
         impmat[0]=1;
     }
         
     if (importance){    
-        impout=(double*)calloc(p_size*(nclass+2),sizeof(double));
-        impSD =(double*)calloc(p_size*(nclass+1),sizeof(double));
+        plhs[15] = mxCreateNumericMatrix(p_size,(nclass+2), mxDOUBLE_CLASS, 0);
+        plhs[16] = mxCreateNumericMatrix(p_size,(nclass+1), mxDOUBLE_CLASS, 0);
+        
+        impout=(double*) mxGetData(plhs[15]); //calloc(p_size*(nclass+2),sizeof(double));
+        impSD =(double*) mxGetData(plhs[16]); //calloc(p_size*(nclass+1),sizeof(double));
     }else{
-        impout=(double*)calloc(p_size,sizeof(double));
-        impSD =(double*)calloc(1,sizeof(double));
+        plhs[15] = mxCreateNumericMatrix(p_size,1, mxDOUBLE_CLASS, 0);
+        plhs[16] = mxCreateNumericMatrix(1,1, mxDOUBLE_CLASS, 0);
+        
+        impout=(double*) mxGetData(plhs[15]); //calloc(p_size,sizeof(double));
+        impSD =(double*) mxGetData(plhs[16]); //calloc(1,sizeof(double));
     }
     int nrnodes = 2 * (int)(nsum / nodesize) + 1;
     
@@ -165,8 +179,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[2] = mxCreateNumericMatrix(nrnodes, nt, mxDOUBLE_CLASS, 0);
     double *xbestsplit = (double*) mxGetData(plhs[2]);
 
+    plhs[17] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+    double* errtr = (double*) mxGetData(plhs[17]); //calloc((nclass+1) * ntree,sizeof(double));
     
-    double* errtr = (double*) calloc((nclass+1) * ntree,sizeof(double));
     int testdat=0;
     double xts=1;
     int clts = 1; 
@@ -177,19 +192,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double proxts=1;
     double errts=1;
     int* inbag;
-    if (keep_inbag)
-        inbag = (int*) calloc(n_size,sizeof(int));
-    else
-        inbag = (int*) calloc(n_size*ntree,sizeof(int));
-    
+    if (keep_inbag){
+        plhs[18] = mxCreateNumericMatrix(n_size, ntree, mxINT32_CLASS, 0);
+        inbag = (int*) mxGetData(plhs[18]);//calloc(n_size,sizeof(int));
+    }else{
+        plhs[18] = mxCreateNumericMatrix(n_size, 1, mxINT32_CLASS, 0);
+        inbag = (int*) mxGetData(plhs[18]);//calloc(n_size*ntree,sizeof(int));
+    }
     if (DEBUG_ON){
         //printf few of the values
-        for(i=0;i<10;i++)
-            mexPrintf("%f,",x[i]);
+        //for(i=0;i<10;i++)
+        //    mexPrintf("%f,",x[i]);
     }
     plhs[0] = mxCreateDoubleScalar(nrnodes);
     plhs[1] = mxCreateDoubleScalar(ntree);
 
+    mexPrintf("\n");
     classRF(x, dimx, y, &nclass, cat, &maxcat,
 	     sampsize, strata, Options, &ntree, &mtry,&ipi, 
          classwt, cutoff, &nodesize,outcl, counttr, prox,
@@ -201,15 +219,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
             
     
     
-    free(outcl);
-    free(counttr);
-    free(errtr);
+    //free(outcl);
+    //free(counttr);
+    //free(errtr);
     free(countts);
-    free(inbag);
-    free(impout);
-    free(impmat);
-    free(impSD);
-    free(prox);
+    //free(inbag);
+    //free(impout);
+    //free(impmat);
+    //free(impSD);
+    //free(prox);
     
     // Below are allocated via matlab and will be needed for prediction
     //free(classwt);

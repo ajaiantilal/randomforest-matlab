@@ -1,7 +1,10 @@
 mex/standalone interface to Andy Liaw et al.'s C code (used in R package randomForest)
 Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 License: GPLv2
-Version: 0.1 
+Version: 0.02
+
+****A tutorial for matlab now in tutorial_ClassRF.m****
+ 
 
 Ways to generate Mex's and Standalone files
 
@@ -55,15 +58,17 @@ See the sample file test_ClassRF_extensively.m
     %X: data matrix
     %model: generated via classRF_train function
 
-%function model = classRF_train(X,Y,ntree,mtry)
+%function model = classRF_train(X,Y,ntree,mtry, extra_options)
     %requires 2 arguments and the rest 2 are optional
     %X: data matrix
     %Y: target values
     %ntree (optional): number of trees (default is 500)
     %mtry (default is max(floor(D/3),1) D=number of features in X)
-
+    %there are about 14 odd options for extra_options. Refer to tutorial_ClassRF.m to examine them
 
 Version History:
-  v0.1 (Mar-22-09): very basic interface for mex/standalone to Liaw et al's 
+  v0.02 (May-15-09):Updated so that classification package now has about 95% of the total options
+        that the R-package gives. Woohoo. Tracing of what happening behind screen works better.
+  v0.01 (Mar-22-09): very basic interface for mex/standalone to Liaw et al's 
      randomForest Package supports only ntree and mtry changing for time being.
     

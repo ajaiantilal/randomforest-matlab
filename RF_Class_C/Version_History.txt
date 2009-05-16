@@ -1,5 +1,10 @@
 CHANGES
 
+svn-v8?
+Added almost 95% of the total options provided by the R-package to classification.
+Added tutorial for classification based RF in tutorial_ClassRF.m
+Moving now to version 0.02
+
 svn-v4
 
 Added a `cruft' conditional compile for win64 (-DWIN64) target which involves exporting (extern)
