@@ -17,7 +17,7 @@ for i=1:10
 	fprintf('%d,',i);
 	tic;
 	model=classRF_train(inputs',outputs,1000);
-	total_train_time=toc;
+    total_train_time=toc;
     tic;
 	y_hat = classRF_predict(inputs',model);
 	total_test_time=total_test_time+toc;	
