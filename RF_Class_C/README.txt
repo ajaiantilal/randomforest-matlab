@@ -3,6 +3,10 @@ Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 License: GPLv2
 Version: 0.02
 
+
+CLASSIFICATION BASED RANDOMFOREST
+
+
 ****A tutorial for matlab now in tutorial_ClassRF.m****
  
 

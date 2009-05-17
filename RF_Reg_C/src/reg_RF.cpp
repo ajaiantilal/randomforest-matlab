@@ -2,7 +2,7 @@
  * mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
  * Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
  * License: GPLv2
- * Version: 0.1 
+ * Version: 0.02
  *
  * File: contains all the supporting code for a standalone C or mex for
  *       Regression RF. 
@@ -289,7 +289,7 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
     ntest = *nts;
     varImp = imp[0];
     localImp = imp[1];
-    nPerm = imp[2];
+    nPerm = imp[2]; //printf("nPerm %d\n",nPerm);
     keepF = keepf[0];
     keepInbag = keepf[1];
     
@@ -613,9 +613,9 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
 	free(nodex);
 	free(varUsed);
     if (!(*replace)  )
-		free(nind);
+        free(nind);
     
-        if (testdat) {
+    if (testdat) {
 		free(ytree);
 		free(nodexts);
 	}
@@ -863,7 +863,7 @@ void findBestSplit(double *x, int *jdex, double *y, int mdim, int nsample,
     
     if (in_findBestSplit==-99){
       free(ncase);
-      free(mind);
+      free(mind); //had to remove this so that it wont crash for when mdim=0, strangely happened for replace=0
       free(v);
       free(yl);
       free(xt);

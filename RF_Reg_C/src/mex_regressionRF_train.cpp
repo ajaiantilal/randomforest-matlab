@@ -2,7 +2,7 @@
  * mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
  * Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
  * License: GPLv2
- * Version: 0.1 
+ * Version: 0.02
  *
  * file info: does training for regression RF
  * Inputs: 
@@ -74,13 +74,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     dimx[1]=p_size;
     if (DEBUG_ON) printf("\n\n\n n %d, p %d\n", dimx[0], dimx[1]);
     
-    int sampsize;
-    sampsize=n_size;
+    int sampsize=(int)mxGetScalar(prhs[4]);
     if (DEBUG_ON) printf("sampsize %d\n", sampsize);
-    int nodesize=5;
+    int nodesize=(int)mxGetScalar(prhs[5]);
     if (DEBUG_ON) printf("nodesize %d\n", nodesize);
-    int nsum = sampsize;
-    if (DEBUG_ON) printf("nsum %d\n", nsum);
     
     plhs[3] = mxCreateDoubleScalar(2 * (int)(floor((float)(sampsize / (1>(nodesize - 4)?1:(nodesize - 4))) ))+ 1);
     int nrnodes = 2 * (int)((float)floor((float)(sampsize / (1>(nodesize - 4)?1:(nodesize - 4)))))+ 1;
@@ -89,16 +86,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int ntree;
     int nvar;
  
-    if (nrhs<=2)
-        ntree=500;
-    else
-        ntree=(int)mxGetScalar(prhs[2]);
+    //correctness handled in .m file
+    ntree=(int)mxGetScalar(prhs[2]);
+    nvar=(int)mxGetScalar(prhs[3]);
     
-    if (nrhs<=3)
-        nvar=(floor((float)(p_size/3))>1)?floor((float)(p_size/3)):1;
-    else
-        nvar=(int)mxGetScalar(prhs[3]);
-    mexPrintf("\nntree %d, mtry=%d\n",ntree,nvar);
+    
+    if (DEBUG_ON) mexPrintf("\nntree %d, mtry=%d\n",ntree,nvar);
     
     if (ntree<=0)
         mexErrMsgIdAndTxt("mex_regressionRF_train",
@@ -107,76 +100,87 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //printf("ntree %d\n", ntree);
     //if (DEBUG_ON)
     //printf("nvar %d\n", nvar);
-    int imp[] = {0, 0, 1};
+    int *imp = (int*)mxGetData(prhs[6]);
     
     //int cat[p_size];
-    int *cat; cat = (int*) calloc(p_size, sizeof(int));
+    int *cat = (int*) mxGetData(prhs[7]);
+            
     if (DEBUG_ON) printf("cat %d\n", p_size);
-    for ( i=0;i<p_size;i++) cat[i] = 1;
+    //for ( i=0;i<p_size;i++) cat[i] = 1;
     
     
-    int maxcat=1;
+    int maxcat=*((int*)mxGetData(prhs[8]));
     if (DEBUG_ON) printf("maxcat %d\n", maxcat);
-    int jprint=1;
+    int jprint=*((int*)mxGetData(prhs[9]));
     if (DEBUG_ON) printf("dotrace %d\n", maxcat);
-    int doProx=0;
+    int doProx=*((int*)mxGetData(prhs[10]));
     if (DEBUG_ON) printf("doprox %d\n", doProx);
-    int oobprox = doProx;
+    int oobprox = *((int*)mxGetData(prhs[11]));
     if (DEBUG_ON) printf("oobProx %d\n", oobprox);
-    int biasCorr=0;
+    int biasCorr=*((int*)mxGetData(prhs[12]));
     if (DEBUG_ON) printf("biascorr %d\n", biasCorr);
     
     //double y_pred_trn[n_size];
-    double *y_pred_trn; y_pred_trn = (double*) calloc(n_size, sizeof(double));
+    plhs[8] = mxCreateNumericMatrix(n_size, 1, mxDOUBLE_CLASS, 0);
+    double *y_pred_trn = mxGetPr(plhs[8]);// y_pred_trn = (double*) calloc(n_size, sizeof(double));
     if (DEBUG_ON) printf("ypredsize %d\n", n_size);
     
     double *impout;
     if (imp[0]==1){
         //double impout[p_size*2];
-        impout = (double*) calloc(p_size*2, sizeof(double));
+        plhs[10] = mxCreateNumericMatrix(p_size, 2, mxDOUBLE_CLASS, 0);
+        impout = mxGetPr(plhs[10]); //(double*) calloc(p_size*2, sizeof(double));
         if (DEBUG_ON) printf("impout %d\n", p_size*2);
     }else{
         //double impout[p_size];
-        impout = (double*) calloc(p_size, sizeof(double));
+        plhs[10] = mxCreateNumericMatrix(p_size, 1, mxDOUBLE_CLASS, 0);
+        impout = mxGetPr(plhs[10]); //(double*) calloc(p_size, sizeof(double));
         if (DEBUG_ON) printf("impout %d\n", p_size);
     }
     
     double *impmat;
     if(imp[1]==1){
         //double impmat[p_size*n_size];
-        impmat = (double*) calloc(p_size*n_size, sizeof(double));
+        plhs[11] = mxCreateNumericMatrix(p_size, n_size, mxDOUBLE_CLASS, 0);
+        impmat = mxGetPr(plhs[11]); //(double*) calloc(p_size*n_size, sizeof(double));
         if (DEBUG_ON) printf("impmat %d\n", p_size*n_size);
     }else{
         //double impmat=1;
-        impmat = (double*) calloc(1, sizeof(double));
+        plhs[11] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        impmat = mxGetPr(plhs[11]); //(double*) calloc(1, sizeof(double));
         if (DEBUG_ON) printf("impmat %d\n", 1);
         impmat[0]=0;
     }
     
     double *impSD;
-    if(imp[2]==1){
+    if(imp[0]==1){
         //double impSD[p_size];
-        impSD = (double*)calloc(p_size, sizeof(double));
+        plhs[12] = mxCreateNumericMatrix(p_size, 1, mxDOUBLE_CLASS, 0);
+        impSD = mxGetPr(plhs[12]); //(double*)calloc(p_size, sizeof(double));
         if (DEBUG_ON) printf("impSD %d\n", p_size);
     }else{
         //double impSD=1;
-        impSD = (double*)calloc(1, sizeof(double));
+        plhs[12] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        impSD = mxGetPr(plhs[12]); //(double*)calloc(1, sizeof(double));
         if (DEBUG_ON) printf("impSD %d\n", 1);
         impSD[0]=0;
     }
     
     int keepf[2];
     keepf[0]=1;
-    keepf[1]=0;
+    keepf[1]=(int) mxGetScalar(prhs[13]);
     
-    int nt;
-    if (keepf[0]==1){
-        nt=ntree;
+    int nt=ntree; //always keep the tree so keepf[0]=1 and this is always ntree
+    
+    double *prox;
+    if (doProx){
+        plhs[13] = mxCreateNumericMatrix(n_size,n_size,mxDOUBLE_CLASS,0);
+        prox = mxGetPr(plhs[13]);
     }else{
-        nt=1;
+        plhs[13] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,0);
+        prox = mxGetPr(plhs[13]);
     }
-    
-    double prox[]={0};//[n_size*n_size]
+    	
     
     //int ndtree[ntree];
     //int *ndtree; ndtree = (int*)calloc(ntree, sizeof(int));
@@ -220,13 +224,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double *upper=(double*)mxGetData(plhs[4]);
     if (DEBUG_ON) printf("upper %d\n", nrnodes*nt);
     
-    double *mse = (double*)calloc(ntree, sizeof(double));
+    plhs[9] = mxCreateNumericMatrix(ntree,1,mxDOUBLE_CLASS,0);
+    double *mse = mxGetPr(plhs[9]);//(double*)calloc(ntree, sizeof(double));
     if (DEBUG_ON) printf("mse %f\n", mse);
     
-    int replace=1;
+    int replace=(int)mxGetScalar(prhs[14]);
+    if (DEBUG_ON) printf("replace %d\n", replace);
+    
     int testdat=0;
+    //try with 1 examples for training as testing just to check for correctness. this can be removed without implications later on
     double *xts=x;
-    int nts = 10;
+    int nts = 1;
     double *yts=y;
     int labelts=1;
     
@@ -241,16 +249,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
         msets=(double*)calloc(ntree, sizeof(double));
         msets[0]=1;
     }
-    double coef[2];
+    
+    plhs[14] = mxCreateNumericMatrix(2,1,mxDOUBLE_CLASS,0);
+    double *coef = mxGetPr(plhs[14]);
+    
     
     //int nout[n_size];
-    int*nout; nout=(int*)calloc(n_size, sizeof(int));
+    plhs[15] = mxCreateNumericMatrix(n_size,1,mxINT32_CLASS,0);
+    int* nout = (int*)mxGetData(plhs[15]); //(int*)calloc(n_size, sizeof(int));
     
     int* inbag;
     if (keepf[1]==1){
-        inbag=(int*)calloc(n_size*ntree, sizeof(int));
+        plhs[16] = mxCreateNumericMatrix(n_size,ntree,mxINT32_CLASS,0);
+        inbag=(int*)mxGetData(plhs[16]);//calloc(n_size*ntree, sizeof(int));
     }else{
-        inbag=(int*)calloc(1, sizeof(int));
+        plhs[16] = mxCreateNumericMatrix(1,1,mxINT32_CLASS,0);
+        inbag=(int*)mxGetData(plhs[16]);//(int*)calloc(1, sizeof(int));
         inbag[0]=1;
     }
     
@@ -306,12 +320,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //printf("Mean of sq. residuals \t%f\n",mse[ntree-1]);
     //printf("\% var Explained  \t%f\n",mse[ntree-1]);
     
-    //let the variables go free
-    free(cat);
-    free(y_pred_trn);
-    free(impout);
-    free(impmat);
-    free(impSD);
+    //let the variables go free, dont because they will be used in the model
+    //free(cat);
+    //free(y_pred_trn);
+    //free(impout);
+    //free(impmat);
+    //free(impSD);
     
     // the following commented out variables are needed for predicition.
     //free(ndtree);
@@ -322,12 +336,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //free(mbest);
     //free(upper);
     
-    free(mse);
-    free(yTestPred);
-    free(msets);
-    free(nout);
-    free(inbag);
+    //free(mse);
+    //free(nout);
+    //free(inbag);
     
+    
+    //free(yTestPred);
+    //free(msets);
     
     return;
 }

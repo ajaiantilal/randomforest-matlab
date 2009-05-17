@@ -1,7 +1,7 @@
 # Makefile to compile mex/standalone version to Andy Liaw et al.'s C code (used in R package randomForest)
 # Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 # License: GPLv2
-# Version: 0.1 
+# Version: 0.02
 
 
 #  Makefile to generate mex or standalone. will work in cygwin (for windows) or linux

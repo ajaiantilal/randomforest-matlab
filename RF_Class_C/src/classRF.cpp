@@ -2,7 +2,7 @@
  * mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
  * Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
  * License: GPLv2
- * Version: 0.1 
+ * Version: 0.02
  *
  * File: contains all the supporting code for a standalone C or mex for
  *       Classification RF. 

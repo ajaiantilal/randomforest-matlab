@@ -2,7 +2,7 @@
 %* Test of mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
 %* Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 %* License: GPLv2
-%* Version: 0.1 
+%* Version: 0.02
 %
 %  This file runs tests about 10 times on the diabetes dataset
 %
@@ -23,7 +23,7 @@ total_test_time=0;
 for i=1:10
 	fprintf('%d,',i);
 	tic;
-	model=regRF_train(diabetes.x,diabetes.y,500);
+	model=regRF_train(diabetes.x,diabetes.y,1000);
 	total_train_time=toc;
 	tic;
 	y_hat =regRF_predict(diabetes.x,model);
@@ -39,7 +39,7 @@ total_test_time=0;
 for i=1:1
 	fprintf('%d,',i);
 	tic;
-	model=regRF_train(diabetes.x2,diabetes.y,500);
+	model=regRF_train(diabetes.x2,diabetes.y,1000);
 	total_train_time=total_train_time+toc;
 	tic;
 	y_hat =regRF_predict(diabetes.x2,model);

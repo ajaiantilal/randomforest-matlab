@@ -2,7 +2,7 @@
  * Standalone interface to Andy Liaw et al.'s C code (used in R package randomForest)
  * Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
  * License: GPLv2
- * Version: 0.1 
+ * Version: 0.02
  * 
  * What this barely has: link to Random forest code, setting parameters for
  * number of tree, nvar/mtry. No support for almost everything else.

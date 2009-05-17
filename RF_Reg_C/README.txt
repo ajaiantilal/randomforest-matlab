@@ -1,7 +1,14 @@
 mex/standalone interface to Andy Liaw et al.'s C code (used in R package randomForest)
 Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 License: GPLv2
-Version: 0.1 
+Version: 0.02 
+
+
+REGRESSION BASED RANDOMFOREST
+
+
+****A tutorial for matlab now in tutorial_ClassRF.m****
+ 
 
 Ways to generate Mex's and Standalone files
 
@@ -57,6 +64,8 @@ See the sample file test_RegRF_extensively.m
 
 
 Version History:
-  v0.1 (Mar-22-09): very basic interface for mex/standalone to Liaw et al's 
+  v0.02 (May-15-09):Updated so that regression package now has about 95% of the total options
+        that the R-package gives. Woohoo. Tracing of what happening behind screen works better.
+  v0.01 (Mar-22-09): very basic interface for mex/standalone to Liaw et al's 
      randomForest Package supports only ntree and mtry changing for time being.
     

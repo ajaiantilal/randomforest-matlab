@@ -2,16 +2,18 @@
 %* mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
 %* Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 %* License: GPLv2
-%* Version: 0.1 
+%* Version: 0.02
 %
 % Calls Classification Random Forest
 % A wrapper matlab file that calls the mex file
 % This does training given the data and labels 
-% number of trees is the third option (Optional) which is set to 500 if not
-% supplied. Documentation copied from R-packages pdf 
+% Documentation copied from R-packages pdf 
 % http://cran.r-project.org/web/packages/randomForest/randomForest.pdf 
+% Tutorial on getting this working in tutorial_ClassRF.m
 %**************************************************************
 % function model = classRF_train(X,Y,ntree,mtry, extra_options)
+% 
+%___Options
 % requires 2 arguments and the rest 3 are optional
 % X: data matrix
 % Y: target values 
@@ -42,7 +44,8 @@
 %                       by default
 %  extra_options.sampsize =  Size(s) of sample to draw. For classification, 
 %                   if sampsize is a vector of the length the number of strata, then sampling is stratified by strata, 
-%                   and the elements of sampsize indicate the numbers to be drawn from the strata. I don't yet know how this works.
+%                   and the elements of sampsize indicate the numbers to be
+%                   drawn from the strata. 
 %  extra_options.nodesize = Minimum size of terminal nodes. Setting this number larger causes smaller trees
 %                   to be grown (and thus take less time). Note that the default values are different
 %                   for classification (1) and regression (5).
@@ -60,7 +63,32 @@
 % Options eliminated
 % corr_bias which happens only for regression ommitted
 % norm_votes - always set to return total votes for each class.
-
+%
+%___Returns model which has
+% importance =  a matrix with nclass + 2 (for classification) or two (for regression) columns.
+%       For classification, the first nclass columns are the class-specific measures
+%       computed as mean decrease in accuracy. The nclass + 1st column is the
+%       mean decrease in accuracy over all classes. The last column is the mean decrease
+%       in Gini index. For Regression, the first column is the mean decrease in
+%       accuracy and the second the mean decrease in MSE. If importance=FALSE,
+%       the last measure is still returned as a vector.
+% importanceSD = The ?standard errors? of the permutation-based importance measure. For classification,
+%       a p by nclass + 1 matrix corresponding to the first nclass + 1
+%       columns of the importance matrix. For regression, a length p vector.
+% localImp = a p by n matrix containing the casewise importance measures, the [i,j] element
+%       of which is the importance of i-th variable on the j-th case. NULL if
+%       localImp=FALSE.
+% ntree = number of trees grown.
+% mtry  = number of predictors sampled for spliting at each node.
+% votes (classification only) a matrix with one row for each input data point and one
+%       column for each class, giving the fraction or number of ?votes? from the random
+%       forest.
+% oob_times number of times cases are 'out-of-bag' (and thus used in computing OOB error
+%       estimate)
+% proximity if proximity=TRUE when randomForest is called, a matrix of proximity
+%       measures among the input (based on the frequency that pairs of data points are
+%       in the same terminal nodes).
+% errtr = first column is OOB Err rate, second is for class 1 and so on
 
 function model=classRF_train(X,Y,ntree,mtry, extra_options)
     DEFAULTS_ON =0;
@@ -198,7 +226,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         if length(classwt)~=nclass
             error('Length of classwt not equal to the number of classes')
         end
-        if length(find(classwt<=0))
+        if ~isempty(find(classwt<=0))
             error('classwt must be positive');
         end
         ipi=1;
@@ -345,8 +373,10 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     model.localImp = impmat;
     model.importance = impout;
     model.importanceSD = impSD;
-    model.errtr = errtr;
+    model.errtr = errtr';
     model.inbag = inbag;
+    model.votes = counttr';
+    model.oob_times = sum(counttr)';
  	clear mexClassRF_train
     %keyboard
     1;

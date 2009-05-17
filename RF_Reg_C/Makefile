@@ -1,7 +1,7 @@
 # Makefile to compile mex/standalone version to Andy Liaw et al.'s C code (used in R package randomForest)
 # Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 # License: GPLv2
-# Version: 0.1 
+# Version: 0.02
 
 
 #  Makefile to generate mex or standalone. will work in cygwin (for windows) or linux
@@ -14,7 +14,7 @@
 #source directory
 SRC=src/
 
-CC=gcc
+CC=g++
 
 # debug CFLAGS
 CFLAGS=-g -fPIC -pg -O2 -lm #-Wall
@@ -40,10 +40,10 @@ diabetes:
 	echo -e  'Compiling diabetes test case'
 	g++  $(SRC)cokus.cpp $(SRC)reg_RF.cpp $(SRC)diabetes_C_wrapper.cpp $(CFLAGS) -o diabetes_test 
 
-mex:	clean reg_RF
+mex:	clean 
 	echo -e 'Making mex'
-	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_train.cpp $(BUILD)reg_RF.o -o mexRF_train -DMATLAB
-	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(BUILD)reg_RF.o -o mexRF_predict -DMATLAB 
+	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_train.cpp $(SRC)reg_RF.cpp -o mexRF_train -DMATLAB 
+	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(SRC)reg_RF.cpp -o mexRF_predict -DMATLAB 
 #mex mex_regressionRF_train.c reg_RF.o -o mexRF_train -DMATLAB $(ICC_LDFLAGS)
 
 reg_RF:

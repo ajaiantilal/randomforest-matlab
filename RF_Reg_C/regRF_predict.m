@@ -2,7 +2,7 @@
 %* mex interface to Andy Liaw et al.'s C code (used in R package randomForest)
 %* Added by Abhishek Jaiantilal ( abhishek.jaiantilal@colorado.edu )
 %* License: GPLv2
-%* Version: 0.1 
+%* Version: 0.02
 %
 % Calls Regression Random Forest
 % A wrapper matlab file that calls the mex file
@@ -19,4 +19,8 @@ function Y_hat = regRF_predict(X,model)
 	end
 	
 	Y_hat = mexRF_predict(X',model.lDau,model.rDau,model.nodestatus,model.nrnodes,model.upper,model.avnode,model.mbest,model.ndtree,model.ntree);
+    
+    if ~isempty(find(model.coef)) %for bias corr
+        Y_hat = model.coef(1) + model.coef(2)*Y_hat;
+    end
 	clear mexRF_predict
