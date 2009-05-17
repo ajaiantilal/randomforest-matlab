@@ -1,3 +1,6 @@
+% A simple tutorial file to interface with RF
+% Options copied from http://cran.r-project.org/web/packages/randomForest/randomForest.pdf
+
 %run plethora of tests
 clc
 close all
@@ -72,7 +75,7 @@ Y_tst = Y(randvector(251:end));
     Y_hat = classRF_predict(X_tst,model);
     fprintf('\nexample 6: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
 
-%example 7: modify to make class(es) more IMPORTANT than the others
+% example 7: modify to make class(es) more IMPORTANT than the others
     %  extra_options.cutoff (Classification only) = A vector of length equal to
     %                       number of classes. The 'winning' class for an observation is the one with the maximum ratio of proportion
     %                       of votes to cutoff. Default is 1/k where k is the number of classes (i.e., majority
@@ -92,7 +95,7 @@ Y_tst = Y(randvector(251:end));
 %  extra_options.strata = (not yet stable in code) variable that is used for stratified
 %                       sampling. I don't yet know how this works.
 
-%example 8: sampsize example
+% example 8: sampsize example
     %  extra_options.sampsize =  Size(s) of sample to draw. For classification, 
     %                   if sampsize is a vector of the length the number of strata, then sampling is stratified by strata, 
     %                   and the elements of sampsize indicate the numbers to be drawn from the strata.
@@ -103,7 +106,7 @@ Y_tst = Y(randvector(251:end));
     Y_hat = classRF_predict(X_tst,model);
     fprintf('\nexample 8: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
-%example 9: nodesize
+% example 9: nodesize
     %  extra_options.nodesize = Minimum size of terminal nodes. Setting this number larger causes smaller trees
     %                   to be grown (and thus take less time). Note that the default values are different
     %                   for classification (1) and regression (5).
@@ -115,7 +118,7 @@ Y_tst = Y(randvector(251:end));
     fprintf('\nexample 9: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
         
 
-%example 10: calculating importance
+% example 10: calculating importance
     clear extra_options
     extra_options.importance = 1; %(0 = (Default) Don't, 1=calculate)
    
@@ -131,6 +134,7 @@ Y_tst = Y(randvector(251:end));
     %           in Gini index. For Regression, the first column is the mean decrease in
     %           accuracy and the second the mean decrease in MSE. If importance=FALSE,
     %           the last measure is still returned as a vector.
+    figure('Name','Importance Plots')
     subplot(2,1,1);
     bar(model.importance(:,end-1));xlabel('feature');ylabel('magnitude');
     title('Mean decrease in Accuracy');
@@ -145,7 +149,7 @@ Y_tst = Y(randvector(251:end));
     %           columns of the importance matrix. For regression, a length p vector.
     model.importanceSD
 
-%example 11: calculating local importance
+% example 11: calculating local importance
     %  extra_options.localImp = Should casewise importance measure be computed? (Setting this to TRUE will
     %                   override importance.)
     %localImp  = a D by N matrix containing the casewise importance measures, the [i,j] element
@@ -206,5 +210,24 @@ Y_tst = Y(randvector(251:end));
     fprintf('\nexample 15: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
     model.inbag
+
+% example 16: getting the OOB rate. model will have errtr whose first
+% column is the OOB rate. and the second column is for the 1-st class and
+% so on
+    model = classRF_train(X_trn,Y_trn);
+    Y_hat = classRF_predict(X_tst,model);
+    fprintf('\nexample 16: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+    
+    figure('Name','OOB error rate');
+    plot(model.errtr(:,1)); title('OOB error rate');  xlabel('iteration'); ylabel('OOB error rate');
+    
+
+% example 17: getting prediction per tree, votes etc for test set
+    model = classRF_train(X_trn,Y_trn);
+    
+    test_options.predict_all = 1;
+    [Y_hat, votes, prediction_pre_tree] = classRF_predict(X_tst,model,test_options);
+    fprintf('\nexample 17: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+    
 
 
