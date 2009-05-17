@@ -7,4 +7,4 @@ Download the code in the Download section. There are two folders each with Howto
 Folder RF_Reg_C contains code for regression Random Forest
 Folder RF_Class_C contains code for classification Random Forest
 
-Easiest way to start is to look for tutorial_*.m file within this folders and read the README.txt
+Easiest way to start is to look for tutorial`_``*`.m file within this folders and read the README.txt
