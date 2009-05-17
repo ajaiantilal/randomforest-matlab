@@ -187,7 +187,7 @@ Y_tst = Y(randvector(401:end));
     fprintf('\nexample 14: MSE rate %f\n',   sum((Y_hat-Y_tst).^2));
     
     figure('Name','OOB error rate');
-    plot(model.mse); title('OOB MSE error rate');  xlabel('iteration'); ylabel('OOB error rate');
+    plot(model.mse); title('OOB MSE error rate');  xlabel('iteration (# trees)'); ylabel('OOB error rate');
     
 % 
 % example 15: nPerm

@@ -219,7 +219,7 @@ Y_tst = Y(randvector(251:end));
     fprintf('\nexample 16: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
     figure('Name','OOB error rate');
-    plot(model.errtr(:,1)); title('OOB error rate');  xlabel('iteration'); ylabel('OOB error rate');
+    plot(model.errtr(:,1)); title('OOB error rate');  xlabel('iteration (# trees)'); ylabel('OOB error rate');
     
 
 % example 17: getting prediction per tree, votes etc for test set
