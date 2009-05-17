@@ -1,4 +1,4 @@
-#summary Introduction Page and howto
+#summary Introduction Page and howto get started
 
 = Introduction =
 
