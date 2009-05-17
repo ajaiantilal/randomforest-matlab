@@ -8,3 +8,16 @@ Folder RF_Reg_C contains code for regression Random Forest
 Folder RF_Class_C contains code for classification Random Forest
 
 Easiest way to start is to look for tutorial`_``*`.m file within this folders and read the README.txt
+
+= Linux Compiling =
+
+Compiling: With g++ and gfortran installed for Linux everything should be set except do remove -ansi flag from mexopts.sh in ~/.matlab/Rversion/mexopts.sh Rversion will be dependent on the matlab version installed. That ansi flag will not allow // type comments in the source files. Other instructions in README.txt
+
+= Windows Compiling =
+
+Compiling rfsub.o (from the fortran source in rfsub.f) for win64 was via a cross-compiler on linux, whereas rfsub.o for win32 was via cygwin. Cygwin in current form generates only 32 bit binaries thereby requiring a cross compiler.
+
+For windows compiling of the mex files, precompiled rfsub.o are present and used instead of depending on a fortran compiler. Only requirement is some form of Visual C++ is installed either via express or full version of Visual Studio and appropriate setup of matlab to use Visual studio is done.
+
+
+For both windows and linux, compilers can be set via *mex -setup* on matlab's command window.
