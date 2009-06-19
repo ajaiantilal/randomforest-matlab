@@ -234,4 +234,12 @@ Y_tst = Y(randvector(401:end));
     Y_hat = regRF_predict(X_tst,model);
     fprintf('\nexample 16: MSE rate %f\n',   sum((Y_hat-Y_tst).^2));
     
+
+% example 17: keep all tree predictions (returns prediction_per_tree a Ntst x Ntree matrix)
+    clear extra_options
+    model = regRF_train(X_trn,Y_trn,100,2);
+    test_options.predict_all=1;
+    [Y_hat,prediction_per_tree] = regRF_predict(X_tst,model,test_options);
+    fprintf('\nexample 17: MSE rate %f\n',   sum((Y_hat-Y_tst).^2));
+    
     

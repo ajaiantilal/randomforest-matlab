@@ -178,7 +178,7 @@ Y_tst = Y(randvector(251:end));
 
 % example 13: use only OOB for proximity
     %  extra_options.oob_prox = Should proximity be calculated only on 'out-of-bag' data?
-    clear extra_options
+    clear extra_optionsv
     extra_options.proximity = 1; %(0 = (Default) Don't, 1=calculate)
     extra_options.oob_prox = 0; %(Default = 1 if proximity is enabled,  Don't 0)
    
@@ -222,11 +222,12 @@ Y_tst = Y(randvector(251:end));
     plot(model.errtr(:,1)); title('OOB error rate');  xlabel('iteration (# trees)'); ylabel('OOB error rate');
     
 
-% example 17: getting prediction per tree, votes etc for test set
+% example 17: getting prediction per tree, votes etc for test set (returns
+% prediction_per_tree a Ntst x Ntree matrix)
     model = classRF_train(X_trn,Y_trn);
     
     test_options.predict_all = 1;
-    [Y_hat, votes, prediction_pre_tree] = classRF_predict(X_tst,model,test_options);
+    [Y_hat, votes, prediction_per_tree] = classRF_predict(X_tst,model,test_options);
     fprintf('\nexample 17: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
 
