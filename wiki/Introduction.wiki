@@ -22,3 +22,21 @@ For windows compiling of the mex files, precompiled rfsub.o are present and used
 
 
 For both windows and linux, compilers can be set via *mex -setup* on matlab's command window.
+
+= Mac =
+For the mac, you have good support for gcc and gfortran. These two programs will be needed to compile the code.
+Before installing anything check for compatibility http://www.mathworks.com/support/compilers/previous_releases.html
+
+The below are probable tools that might help you installing gcc/gfortran. Once the tools are installed, the compile_linux.m file should work for your mac system.
+
+http://r.research.att.com/tools/
+
+Apple also has developer tools (Xcode tools) that has gcc http://developer.apple.com/documentation/Porting/Conceptual/PortingUNIX/preparing/preparing.html
+
+Another tool that also has gcc/gfortran is fink http://www.finkproject.org/
+
+Once you get the compiler installed. http://www.mathworks.com/support/tech-notes/1600/1605.html#setup to setup the compiler to be used with matlab, with the mex -setup command
+
+Note the mex options file name that matlab copies to. [Rare: Sometimes that mex option file has -ansi flag included that makes compilers cringe if C code contains // for comments. Remove -ansi flag from the file if it does.]
+
+An slight edit of the makefile might be required.
