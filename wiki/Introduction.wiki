@@ -1,5 +1,5 @@
-#summary Introduction Page and howto get started
-
+#summary Introduction Page and howto get started (installation etc)
+ 
 = Introduction =
 
 Download the code in the Download section. There are two folders each with Howtos that will get you started with the RF code.
