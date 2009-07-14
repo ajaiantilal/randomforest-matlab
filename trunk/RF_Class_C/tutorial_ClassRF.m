@@ -230,5 +230,12 @@ Y_tst = Y(randvector(251:end));
     [Y_hat, votes, prediction_per_tree] = classRF_predict(X_tst,model,test_options);
     fprintf('\nexample 17: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
-
-
+% example 18: proximity of test cases
+% proximity values in proximity_ts
+    model = classRF_train(X_trn,Y_trn);
+    
+    test_options.predict_all = 1;
+    test_options.proximity = 1;
+    [Y_hat, votes, prediction_per_tree, proximity_ts] = classRF_predict(X_tst,model,test_options);
+    fprintf('\nexample 18: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+    
