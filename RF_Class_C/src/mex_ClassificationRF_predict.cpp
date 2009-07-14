@@ -36,7 +36,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int addclass = 0;
     int importance=0;
     int localImp=0;
-    int proximity=0;
+    int proximity=(int)mxGetScalar(prhs[13]);
     int oob_prox=0;
     int do_trace=1;
     int keep_forest=1;
@@ -79,7 +79,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int* jts; 
     int* jet;
     int keepPred=(int)mxGetScalar(prhs[12]);
-    int intProximity=0;
     int nodes=0;
     int* nodexts;
     if (nodes)
@@ -88,10 +87,21 @@ void mexFunction( int nlhs, mxArray *plhs[],
         nodexts = (int*)calloc(ntest,sizeof(int));
     
     double *proxMat;
-    if(proximity)
-        proxMat = (double*)calloc(ntest*ntest,sizeof(double));
-    else{
-        proxMat = (double*)calloc(1,sizeof(double));
+    int ndim=2;
+    int dims_ntest[]={1,1};
+    
+    if(proximity){
+        //proxMat = (double*)calloc(ntest*ntest,sizeof(double));
+        dims_ntest[0] = ntest;
+        dims_ntest[1] = ntest;
+        plhs[3] = mxCreateNumericArray(ndim, dims_ntest, mxDOUBLE_CLASS, mxREAL);
+        proxMat = (double*)mxGetData(plhs[3]);
+    }else{
+        dims_ntest[0] = 1;
+        dims_ntest[1] = 1;
+        plhs[3] = mxCreateNumericArray(ndim, dims_ntest, mxDOUBLE_CLASS, mxREAL);
+        proxMat = (double*)mxGetData(plhs[3]);
+        //proxMat = (double*)calloc(1,sizeof(double));
         proxMat[0]=1;
     }
     int* treeSize = ndbigtree;
@@ -106,11 +116,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mexPrintf("maxcat %d\n",maxcat);
         mexPrintf("nrnodes %d\n",nrnodes);
         mexPrintf("keepPred %d\n",keepPred);
-        mexPrintf("intProxmity %d\n",intProximity);
+        //mexPrintf("intProxmity %d\n",intProximity);
     }
     
-    int ndim=2;
-    int dims_ntest[]={ntest,1};
+    dims_ntest[0] = ntest;
+    dims_ntest[1] = 1;
     plhs[0] = mxCreateNumericArray(ndim, dims_ntest, mxINT32_CLASS, mxREAL);
     
     dims_ntest[0]=nclass;
@@ -137,7 +147,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         pid, cutoff, countts, treemap,
         nodestatus, cat, nodeclass, jts,
         jet, bestvar, nodexts, treeSize,
-        &keepPred, &intProximity, proxMat, &nodes);
+        &keepPred, &proximity, proxMat, &nodes);
    
     if (DEBUG_ON) { 
         mexPrintf("\n\n\nntest %d\n",ntest);
@@ -148,7 +158,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mexPrintf("maxcat %d\n",maxcat);
         mexPrintf("nrnodes %d\n",nrnodes);
         mexPrintf("keepPred %d\n",keepPred);
-        mexPrintf("intProxmity %d\n",intProximity);
+        //mexPrintf("intProxmity %d\n",intProximity);
         mexPrintf("countts 0x%x\n",countts);
         mexPrintf("cat 0x%x\n",cat);
         mexPrintf("jts 0x%x\n",jts);
@@ -159,5 +169,5 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     free(cat);
     free(nodexts);
-    free(proxMat);    
+    //free(proxMat);    
 }
