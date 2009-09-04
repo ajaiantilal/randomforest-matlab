@@ -92,7 +92,7 @@
 
 function model=classRF_train(X,Y,ntree,mtry, extra_options)
     DEFAULTS_ON =0;
-    %DEBUG_ON=0;
+    %DEBUG_ON=1;
 
     TRUE=1;
     FALSE=0;
@@ -167,6 +167,8 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         error('need atleast two classes for classification');
     end
     [N D] = size(X);
+    n_size = N;
+    p_size = D;
     
     if N==0; error(' data (X) has 0 rows');end
     
@@ -189,7 +191,10 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         if ~addclass, 
             addclass=TRUE;
         end
-        error('have to fill stuff here')
+        Y_new = [ones(N,1); ones(N,1)*2];
+        Y = Y_new;
+        X = [X; X];
+        %error('have to fill stuff here')
     end
     
     if ~isempty(find(isnan(X)));  error('NaNs in X');   end
@@ -276,9 +281,9 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     %i handle the below in the mex file
     %somewhere near line 157 in randomForest.default.R
     if addclass
-%        nsample = 2*n;
+        nsample = 2*n_size;
     else
-%        nsample = n;
+        nsample = n_size;
     end
     
     Stratify = (length(sampsize)>1);
@@ -348,7 +353,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
         outcl, counttr, prox, impmat, impout, impSD, errtr, inbag] ...
         = mexClassRF_train(X',int32(Y_new),length(unique(Y)),ntree,mtry,int32(ncat), ... 
                            int32(maxcat), int32(sampsize), strata, Options, int32(ipi), ...
-                           classwt, cutoff, int32(nodesize),int32(nsum));
+                           classwt, cutoff, int32(nodesize),int32(nsum), int32(n_size), int32(p_size), int32(nsample));
  	model.nrnodes=nrnodes;
  	model.ntree=ntree;
  	model.xbestsplit=xbestsplit;

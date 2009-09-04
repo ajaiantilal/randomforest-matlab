@@ -18,20 +18,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		  int nrhs, const mxArray*prhs[] )
      
 { 
-	if(nrhs==15);
+	if(nrhs==18);
     else{
-		printf("Too less parameters: You supplied %d",nrhs);
+		printf("Too less/many parameters: You supplied %d",nrhs);
 		return;
 	}
     
     double *_tmp_d;
         
     int i;
-    int p_size = mxGetM(prhs[0]);
-    int n_size = mxGetN(prhs[0]);
+    int p_size = (int)mxGetScalar(prhs[16]);
+    int n_size = (int)mxGetScalar(prhs[15]);
     double *x = mxGetPr(prhs[0]);
     int *y = (int*)mxGetData(prhs[1]);
-    int dimx[]={p_size, n_size};
     
     if (DEBUG_ON){
         //print few of the values
@@ -68,12 +67,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int stratify  =Options[8];
     int keep_inbag=Options[9];
     
-    int nsample;
-    if(addclass)
-        nsample = 2*n_size;
-    else
-        nsample = n_size;
-    
+    int nsample=(int)mxGetScalar(prhs[17]);;
+    int dimx[]={p_size, n_size};
     
      
     int ntree;
@@ -81,7 +76,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     ntree = (int)mxGetScalar(prhs[3]);
     mtry =  (int)mxGetScalar(prhs[4]);
         
-    if (DEBUG_ON) mexPrintf("\nntree %d, mtry=%d\n",ntree,mtry);
+    if (DEBUG_ON) mexPrintf("\nntree %d, mtry=%d, nsample=%d\n",ntree,mtry, nsample );
     
     int nt=ntree;
     int ipi=*((int*)mxGetData(prhs[10])); // ipi:      0=use class proportion as prob.; 1=use supplied priors
@@ -116,7 +111,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     double* prox;
     if (proximity){
-        plhs[13] = mxCreateNumericMatrix(nsample, nsample, mxDOUBLE_CLASS, 0);
+        plhs[13] = mxCreateNumericMatrix(n_size, n_size, mxDOUBLE_CLASS, 0);
         prox = (double*) mxGetData(plhs[13]); //calloc(nsample*nsample,sizeof(double));
     }else{
         plhs[13] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);

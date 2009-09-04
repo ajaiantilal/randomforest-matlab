@@ -272,7 +272,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     if (oobprox) {
         oobpair = (int *) S_alloc_alt(near*near, sizeof(int));
     }
-    //printf("nsample=%d\n", nsample);
+    //printf("nsample=%d mdim=%d nclass=%d  nsample0=%d nsample=%d ntest=%d\n", nsample, mdim,nclass, nsample0, nsample, ntest);
     /* Count number of cases in each class. */
     zeroInt(classFreq, nclass);
     for (n = 0; n < nsample; ++n) classFreq[cl[n] - 1] ++;
@@ -664,11 +664,31 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     }
     
     //frees up the memory
-    free(tgini);free(wl);free(wr);free(classpop);free(tclasscat);
-    free(tclasspop);free(tx);free(win);free(tp);free(out);
-    free(bestsplitnext);free(bestsplit);free(nodepop);free(nodestart);free(jin);
-    free(nodex);free(nodexts);free(ta);free(ncase);free(jerr);
-    free(varUsed);free(jtr);free(jvr);free(classFreq);free(jts);
+    free(tgini);
+    free(wl);
+    free(wr);
+    free(classpop);
+    free(tclasscat);
+    free(tclasspop);
+    free(tx);
+    free(win);
+    free(tp);
+    free(out);
+    free(bestsplitnext);
+    free(bestsplit);
+    free(nodepop);
+    free(nodestart);
+    free(jin);
+    free(nodex);
+    free(nodexts);
+    free(ta);
+    free(ncase);
+    free(jerr);
+    free(varUsed);
+    free(jtr);
+    free(jvr);
+    free(classFreq);
+    free(jts);
     free(idmove);free(at);free(a);free(b);free(mind);
     free(nright);free(nrightimp);free(nout);
     
