@@ -16,9 +16,9 @@ Compiling: With g++ and gfortran installed for Linux everything should be set ex
 
 = Windows Compiling =
 
-Compiling rfsub.o (from the fortran source in rfsub.f) for win64 was via a cross-compiler on linux, whereas rfsub.o for win32 was via cygwin. Cygwin in current form generates only 32 bit binaries thereby requiring a cross compiler.
+Compiling rfsub.o (from the fortran source in rfsub.f) for win64 was via a cross-compiler on linux, whereas rfsub.o for win32 was via cygwin. Cygwin in current form generates only 32 bit binaries thereby requiring a cross compiler. To avoid installing Cygwin and such, a precompiled rfsub.o is supplied for Windows.
 
-For windows compiling of the mex files, precompiled rfsub.o are present and used instead of depending on a fortran compiler. Only requirement is some form of Visual C++ is installed either via express or full version of Visual Studio and appropriate setup of matlab to use Visual studio is done.
+For windows compiling of the mex files, precompiled rfsub.o are present and used instead of depending on a fortran compiler [thus if you want to recompile everything from scratch, use the makefile and modify the compile_windows.m file]. If using the precompiled version of rfsub.o, the only requirement is some form of Visual C++ is installed either via express or full version of Visual Studio and appropriate setup of matlab to use Visual studio is done.
 
 
 For both windows and linux, compilers can be set via *mex -setup* on matlab's command window.
