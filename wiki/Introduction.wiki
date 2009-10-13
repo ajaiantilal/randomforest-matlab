@@ -39,4 +39,4 @@ Once you get the compiler installed. http://www.mathworks.com/support/tech-notes
 
 Note the mex options file name that matlab copies to. [Rare: Sometimes that mex option file has -ansi flag included that makes compilers cringe if C code contains // for comments. Remove -ansi flag from the file if it does.]
 
-An slight edit of the makefile might be required.
+An slight edit of the makefile might be required. Seems that mac's rm command doesnot like -rf option after a filename, that might require a makefile edit.
