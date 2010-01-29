@@ -16,6 +16,13 @@ Compiling: With g++ and gfortran installed for Linux everything should be set ex
 
 = Windows Compiling =
 
+The randomforest package needs a compiler to compile into mex (matlab executables). Matlab can use its own compiler lcc to compile it or use another compiler like visual studio C++.  lcc compiler that comes with matlab cannot compile C files etc, in short you have to install a compiler like visual studio's C++. 
+
+Even you dont need everything in visual studio, just visual studio C++ and microsoft has a free express version that you can download from here. http://www.microsoft.com/express/vc/
+
+Once  Visual C++ is installed, you have to instruct matlab to use it as a compiler. You can do by issuing mex -setup at matlab terminal (http://www.mathworks.com/support/tech-notes/1600/1605.html#setup), then it will search your drives and give you visual c++ as an option. Select it and then rerun the compile_windows file. 
+
+only for RF_Classification and compiling your own .o from fortran, follow the following:
 Compiling rfsub.o (from the fortran source in rfsub.f) for win64 was via a cross-compiler on linux, whereas rfsub.o for win32 was via cygwin. Cygwin in current form generates only 32 bit binaries thereby requiring a cross compiler. To avoid installing Cygwin and such, a precompiled rfsub.o is supplied for Windows.
 
 For windows compiling of the mex files, precompiled rfsub.o are present and used instead of depending on a fortran compiler [thus if you want to recompile everything from scratch, use the makefile and modify the compile_windows.m file]. If using the precompiled version of rfsub.o, the only requirement is some form of Visual C++ is installed either via express or full version of Visual Studio and appropriate setup of matlab to use Visual studio is done.
