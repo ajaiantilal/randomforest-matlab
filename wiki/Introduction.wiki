@@ -16,7 +16,7 @@ Compiling: With g++ and gfortran installed for Linux everything should be set ex
 
 = Windows Compiling =
 
-The randomforest package needs a compiler to compile into mex (matlab executables). Matlab can use its own compiler lcc to compile it or use another compiler like visual studio C++.  lcc compiler that comes with matlab cannot compile C files etc, in short you have to install a compiler like visual studio's C++. 
+The randomforest package needs a compiler to compile into mex (matlab executables). Matlab can use its own compiler lcc to compile it or use another compiler like visual studio C++.  lcc compiler that comes with matlab cannot compile C++ files etc, in short you have to install a compiler like visual studio's C++. 
 
 Even you dont need everything in visual studio, just visual studio C++ and microsoft has a free express version that you can download from here. http://www.microsoft.com/express/vc/
 
