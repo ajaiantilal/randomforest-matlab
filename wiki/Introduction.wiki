@@ -35,6 +35,12 @@ http://www.microsoft.com/downloads/details.aspx?familyid=32bc1bee-a3f9-4c13-9c99
 64-bit redistributable:
 http://www.microsoft.com/downloads/details.aspx?familyid=90548130-4468-4BBC-9673-D6ACABD5D13B&displaylang=en
 
+Or you might require the later version of the redistributalbe, i.e. Microsoft visual C++ 2008 
+
+32-bit: http://www.microsoft.com/downloads/details.aspx?familyid=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF&displaylang=en
+
+64-bit: http://www.microsoft.com/downloads/details.aspx?displaylang=en&FamilyID=bd2a6171-e2d6-4230-b809-9a8d7548c1b6
+
 Why do you need this?
 Well, the package was compiled with Matlab and Visual C++ express edition. I reckon the latter might not be installed
 on your machine. This is where the redistributable help. They contain the necessary libraries, dll to make the mex run.
