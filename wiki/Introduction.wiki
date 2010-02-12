@@ -64,6 +64,11 @@ For windows compiling of the mex files, precompiled rfsub.o are present and used
 For both windows and linux, compilers can be set via *mex -setup* on matlab's command window.
 
 = Mac =
+
+Thanks to David L. Jones there are precompiled Mex files for Mac OS in the download section with compiler settings on how to setup on a Mac. Download the mex files and also download/unzip the RF_MexStandalone.zip (source) files. Put the mex files in the folders created and you should be all set.
+
+_Alternate way to compile for Mac OS_
+
 For the mac, you have good support for gcc and gfortran. These two programs will be needed to compile the code.
 Before installing anything check for compatibility http://www.mathworks.com/support/compilers/previous_releases.html
 
