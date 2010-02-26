@@ -35,7 +35,7 @@ http://www.microsoft.com/downloads/details.aspx?familyid=32bc1bee-a3f9-4c13-9c99
 64-bit redistributable:
 http://www.microsoft.com/downloads/details.aspx?familyid=90548130-4468-4BBC-9673-D6ACABD5D13B&displaylang=en
 
-Or you might require the later version of the redistributalbe, i.e. Microsoft visual C++ 2008 
+and you might require the later version of the redistributable, i.e. Microsoft visual C++ 2008 
 
 32-bit: http://www.microsoft.com/downloads/details.aspx?familyid=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF&displaylang=en
 
