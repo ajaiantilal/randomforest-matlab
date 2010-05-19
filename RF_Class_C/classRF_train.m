@@ -90,23 +90,42 @@
 %       in the same terminal nodes).
 % errtr = first column is OOB Err rate, second is for class 1 and so on
 
-function model=classRF_train(X,Y,ntree,mtry, extra_options)
+function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     DEFAULTS_ON =0;
     %DEBUG_ON=1;
 
+    if exist('Xtst','var') && exist('Ytst','var') 
+        if(size(Xtst,1)~=length(Ytst))
+            error('Size of Xtst and Ytst dont match');
+        end
+        fprintf('Test data available\n');
+        tst_available=1;
+        tst_size = length(Ytst);
+    else
+        Xtst=1;
+        Ytst=1;
+        tst_available=0;
+        tst_size=0;
+    end
+    
     TRUE=1;
     FALSE=0;
     
     orig_labels = sort(unique(Y));
     Y_new = Y;
+    Y_new_tst = Ytst;
     new_labels = 1:length(orig_labels);
     
     for i=1:length(orig_labels)
         Y_new(find(Y==orig_labels(i)))=Inf;
         Y_new(isinf(Y_new))=new_labels(i);
+        
+        Y_new_tst(find(Ytst==orig_labels(i)))=Inf;
+        Y_new_tst(isinf(Y_new_tst))=new_labels(i);
     end
     
     Y = Y_new;
+    Ytst = Y_new_tst;
     
     if exist('extra_options','var')
         if isfield(extra_options,'DEBUG_ON');  DEBUG_ON = extra_options.DEBUG_ON;    end
@@ -350,10 +369,11 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     
     
     [nrnodes,ntree,xbestsplit,classwt,cutoff,treemap,nodestatus,nodeclass,bestvar,ndbigtree,mtry ...
-        outcl, counttr, prox, impmat, impout, impSD, errtr, inbag] ...
+        outcl, counttr, prox, impmat, impout, impSD, errtr, inbag, outclts, proxts, errts] ...
         = mexClassRF_train(X',int32(Y_new),length(unique(Y)),ntree,mtry,int32(ncat), ... 
                            int32(maxcat), int32(sampsize), strata, Options, int32(ipi), ...
-                           classwt, cutoff, int32(nodesize),int32(nsum), int32(n_size), int32(p_size), int32(nsample));
+                           classwt, cutoff, int32(nodesize),int32(nsum), int32(n_size), int32(p_size), int32(nsample),...
+                           int32(tst_available), Xtst',int32(Ytst),int32(tst_size));
  	model.nrnodes=nrnodes;
  	model.ntree=ntree;
  	model.xbestsplit=xbestsplit;
@@ -368,10 +388,16 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     model.orig_labels=orig_labels;
     model.new_labels=new_labels;
     model.nclass = length(unique(Y));
-    model.outcl = outcl;
+    model.outcl = outcl;        %predicted label on training
+    model.outclts = outclts;    %predicted label on test
     model.counttr = counttr;
     if proximity
         model.proximity = prox;
+        if tst_available
+            model.proximity_tst = proxts;
+        else
+            model.proximity_tst = [];
+        end
     else
         model.proximity = [];
     end
@@ -379,6 +405,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options)
     model.importance = impout;
     model.importanceSD = impSD;
     model.errtr = errtr';
+    model.errts = errts';
     model.inbag = inbag;
     model.votes = counttr';
     model.oob_times = sum(counttr)';

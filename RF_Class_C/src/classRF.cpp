@@ -595,14 +595,14 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             computeProximity(prox, oobprox, nodex, jin, oobpair, near);
             /* proximity for test data */
             if (*testdat) {
-                computeProximity(proxts, 0, nodexts, jin, oobpair, ntest);
-                /* Compute proximity between testset and training set. */
-                for (n = 0; n < ntest; ++n) {
-                    for (k = 0; k < near; ++k) {
-                        if (nodexts[n] == nodex[k])
-                            proxts[n + ntest * (k+ntest)] += 1.0;
-                    }
-                }
+                 computeProximity(proxts, 0, nodexts, jin, oobpair, ntest);
+//                 /* Compute proximity between testset and training set. */
+                 for (n = 0; n < ntest; ++n) {
+                     for (k = 0; k < near; ++k) {
+                         if (nodexts[n] == nodex[k])
+                             proxts[n + ntest * (k+ntest)] += 1.0;
+                     }
+                 }
             }
         }
         
@@ -651,9 +651,11 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             prox[near*n + n] = 1.0;
         }
         if (*testdat) {
-            for (n = 0; n < ntest; ++n)
+            for (n = 0; n < ntest; ++n){
                 for (k = 0; k < ntest + nsample; ++k)
                     proxts[ntest*k + n] /= Ntree;
+                proxts[ntest*n + n]=1.0;
+            }
         }
     }
     if (trace <= Ntree){
@@ -707,7 +709,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             free(nind);
     }
     //printf("labelts %d\n",labelts);fflush(stdout);
-    
+    fflush(stdout);
     if (labelts) {
         free(nclts);        
     }

@@ -18,7 +18,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		  int nrhs, const mxArray*prhs[] )
      
 { 
-	if(nrhs==18);
+	if(nrhs==22);
     else{
 		printf("Too less/many parameters: You supplied %d",nrhs);
 		return;
@@ -67,10 +67,21 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int stratify  =Options[8];
     int keep_inbag=Options[9];
     
-    int nsample=(int)mxGetScalar(prhs[17]);;
+    int nsample=(int)mxGetScalar(prhs[17]);
     int dimx[]={p_size, n_size};
     
-     
+    int tst_available=(int)mxGetScalar(prhs[18]);
+    
+    double *xts;
+    int *yts;
+    int nts;
+    int *outclts;
+    int labelts=0;
+    double* proxts;
+    double* errts;
+
+    
+    
     int ntree;
     int mtry;
     ntree = (int)mxGetScalar(prhs[3]);
@@ -178,14 +189,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double* errtr = (double*) mxGetData(plhs[17]); //calloc((nclass+1) * ntree,sizeof(double));
     
     int testdat=0;
-    double xts=1;
-    int clts = 1; 
-    int nts=1;
-    double* countts = (double*) calloc(nclass * nts,sizeof(double));
-    int outclts = 1;
-    int labelts=0;
-    double proxts=1;
-    double errts=1;
+    double* countts;
     int* inbag;
     if (keep_inbag){
         plhs[18] = mxCreateNumericMatrix(n_size, ntree, mxINT32_CLASS, 0);
@@ -202,14 +206,56 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleScalar(nrnodes);
     plhs[1] = mxCreateDoubleScalar(ntree);
 
-    mexPrintf("\n");
+    
+    if (tst_available){
+        xts = mxGetPr(prhs[19]);
+        yts = (int*)mxGetData(prhs[20]);
+        nts = (int)mxGetScalar(prhs[21]);
+        plhs[19] = mxCreateNumericMatrix(nts, 1, mxINT32_CLASS, 0);
+        outclts = (int*)mxGetData(plhs[19]);
+        countts = (double*) calloc(nclass * nts,sizeof(double));
+        if (proximity){
+            plhs[20] = mxCreateNumericMatrix(nts, nts + n_size, mxDOUBLE_CLASS, 0);
+            proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
+        }else{
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            proxts = (double*) mxGetData(plhs[20]); //calloc(1,sizeof(double));
+            proxts[0]=1;
+        }
+        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+        errts = (double*) mxGetData(plhs[21]); //calloc((nclass+1) * ntree,sizeof(double));
+        labelts=1;
+        testdat=1;
+    }else{
+        xts = (double*)malloc(sizeof(double)*1);
+        yts = (int*)malloc(sizeof(int)*1);
+        nts = 1;
+        plhs[19] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, 0);
+        outclts = (int*)mxGetData(plhs[19]);
+        countts = (double*) calloc(nclass * nts,sizeof(double));
+        if (proximity){
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
+        }else{
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            proxts = (double*) mxGetData(plhs[20]); //calloc(1,sizeof(double));
+            proxts[0]=1;
+        }
+        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+        errts = (double*) mxGetData(plhs[21]); //calloc((nclass+1) * ntree,sizeof(double));
+        labelts=0;
+        testdat=0;
+    }
+     
+    
+    //mexPrintf("tst available %d  %d\n",tst_available,nts);
     classRF(x, dimx, y, &nclass, cat, &maxcat,
 	     sampsize, strata, Options, &ntree, &mtry,&ipi, 
          classwt, cutoff, &nodesize,outcl, counttr, prox,
 	     impout, impSD, impmat, &nrnodes,ndbigtree, nodestatus, 
          bestvar, treemap,nodepred, xbestsplit, errtr,&testdat, 
-         &xts, &clts, &nts, countts,&outclts, labelts, 
-         &proxts, &errts,inbag);
+         xts, yts, &nts, countts,outclts, labelts, 
+         proxts, errts,inbag);
     
             
     
@@ -217,7 +263,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //free(outcl);
     //free(counttr);
     //free(errtr);
-    free(countts);
+    //free(countts);
+    //free(xts);
+    //free(yts);
     //free(inbag);
     //free(impout);
     //free(impmat);
