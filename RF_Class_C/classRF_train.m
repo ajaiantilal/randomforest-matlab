@@ -111,7 +111,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     TRUE=1;
     FALSE=0;
     
-    orig_labels = sort(unique(Y));
+    orig_labels = sort(unique([Y; Ytst]));
     Y_new = Y;
     Y_new_tst = Ytst;
     new_labels = 1:length(orig_labels);
