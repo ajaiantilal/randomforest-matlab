@@ -10,6 +10,8 @@ Folder RF_Class_C contains code for classification Random Forest
 
 Easiest way to start is to look for tutorial`_``*`.m file within these folders and read the README.txt
 
+There are compile_*.m file, * = windows, linux {macs should also use the linux file}, What i do is call a Makefile (for linux) and that compiles the source. For windows i use some precompiled files (for fortran) and merge with the src files using mex.
+
 = Linux =
 
 Compiling: With g++ and gfortran installed for Linux, everything should be set; except do remove -ansi flag from mexopts.sh in ~/.matlab/Rversion/mexopts.sh [Rversion will be dependent on the matlab version installed]. That ansi flag will not allow // type comments in the source files. Other instructions in README.txt
