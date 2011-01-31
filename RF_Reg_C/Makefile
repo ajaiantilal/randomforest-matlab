@@ -17,7 +17,7 @@ SRC=src/
 CC=g++
 
 # debug CFLAGS
-CFLAGS=-g -fPIC -pg -O2 -lm #-Wall
+CFLAGS=-g -fPIC -pg -O2 -lm -Wall
 
 # optimized CFLAGS
 #CFLAGS=-msse3 -O3 -fPIC -funroll-loops -march=native -Wall -pg
