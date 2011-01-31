@@ -79,7 +79,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	int* treeSize = (int*)mxGetData(prhs[8]);
 	int ntree=mxGetScalar(prhs[9]);
 	
-	plhs[0]=mxCreateNumericMatrix(n_size,1,mxDOUBLE_CLASS,0);
+	plhs[0]=mxCreateNumericMatrix(n_size,1,mxDOUBLE_CLASS,mxREAL);
 	double* ypred = (double*)mxGetData(plhs[0]);
 	
 	int mdim = p_size;

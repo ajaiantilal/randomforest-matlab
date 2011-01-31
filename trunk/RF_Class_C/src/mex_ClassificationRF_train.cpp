@@ -92,7 +92,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nt=ntree;
     int ipi=*((int*)mxGetData(prhs[10])); // ipi:      0=use class proportion as prob.; 1=use supplied priors
     plhs[10] = mxCreateDoubleScalar(mtry);
-    plhs[3] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
+    plhs[3] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, mxREAL);
     double *classwt = (double*) mxGetData(plhs[3]);
     _tmp_d = (double*) mxGetData(prhs[11]);
     
@@ -100,7 +100,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     memcpy(classwt,_tmp_d,nclass*sizeof(double));
     
     
-    plhs[4] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, 0);
+    plhs[4] = mxCreateNumericMatrix(nclass, 1, mxDOUBLE_CLASS, mxREAL);
     double *cutoff= (double*) mxGetData(plhs[4]);
     _tmp_d = (double*) mxGetData(prhs[12]);
 
@@ -114,18 +114,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     int nodesize=*((int*) mxGetData(prhs[13]));
     
-    plhs[11] = mxCreateNumericMatrix(nsample, 1, mxINT32_CLASS, 0);
+    plhs[11] = mxCreateNumericMatrix(nsample, 1, mxINT32_CLASS, mxREAL);
     int* outcl=(int*) mxGetData(plhs[11]); //calloc(nsample,sizeof(int));
     
-    plhs[12] = mxCreateNumericMatrix(nclass, nsample, mxINT32_CLASS, 0);
+    plhs[12] = mxCreateNumericMatrix(nclass, nsample, mxINT32_CLASS, mxREAL);
     int* counttr=(int*) mxGetData(plhs[12]); //calloc(nclass*nsample,sizeof(int));
     
     double* prox;
     if (proximity){
-        plhs[13] = mxCreateNumericMatrix(n_size, n_size, mxDOUBLE_CLASS, 0);
+        plhs[13] = mxCreateNumericMatrix(n_size, n_size, mxDOUBLE_CLASS, mxREAL);
         prox = (double*) mxGetData(plhs[13]); //calloc(nsample*nsample,sizeof(double));
     }else{
-        plhs[13] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        plhs[13] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
         prox = (double*) mxGetData(plhs[13]); //calloc(1,sizeof(double));
         prox[0]=1;
     }
@@ -134,23 +134,23 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double* impSD;
     
     if (localImp){
-        plhs[14] = mxCreateNumericMatrix(n_size, p_size, mxDOUBLE_CLASS, 0);
+        plhs[14] = mxCreateNumericMatrix(n_size, p_size, mxDOUBLE_CLASS, mxREAL);
         impmat = (double*) mxGetData(plhs[14]); //calloc(n_size*p_size,sizeof(double));
     }else{
-        plhs[14] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+        plhs[14] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
         impmat = (double*) mxGetData(plhs[14]); //calloc(1,sizeof(double));
         impmat[0]=1;
     }
         
     if (importance){    
-        plhs[15] = mxCreateNumericMatrix(p_size,(nclass+2), mxDOUBLE_CLASS, 0);
-        plhs[16] = mxCreateNumericMatrix(p_size,(nclass+1), mxDOUBLE_CLASS, 0);
+        plhs[15] = mxCreateNumericMatrix(p_size,(nclass+2), mxDOUBLE_CLASS, mxREAL);
+        plhs[16] = mxCreateNumericMatrix(p_size,(nclass+1), mxDOUBLE_CLASS, mxREAL);
         
         impout=(double*) mxGetData(plhs[15]); //calloc(p_size*(nclass+2),sizeof(double));
         impSD =(double*) mxGetData(plhs[16]); //calloc(p_size*(nclass+1),sizeof(double));
     }else{
-        plhs[15] = mxCreateNumericMatrix(p_size,1, mxDOUBLE_CLASS, 0);
-        plhs[16] = mxCreateNumericMatrix(1,1, mxDOUBLE_CLASS, 0);
+        plhs[15] = mxCreateNumericMatrix(p_size,1, mxDOUBLE_CLASS, mxREAL);
+        plhs[16] = mxCreateNumericMatrix(1,1, mxDOUBLE_CLASS, mxREAL);
         
         impout=(double*) mxGetData(plhs[15]); //calloc(p_size,sizeof(double));
         impSD =(double*) mxGetData(plhs[16]); //calloc(1,sizeof(double));
@@ -160,42 +160,42 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (DEBUG_ON) { mexPrintf("\nnrnodes=%d, nsum=%d, nodesize=%d, mtry=%d\n",nrnodes,nsum,nodesize,mtry);}
     
     //int* ndbigtree = (int*) calloc(ntree,sizeof(int)); 
-    plhs[9] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
+    plhs[9] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, mxREAL);
     int *ndbigtree = (int*) mxGetData(plhs[9]);
     
     //int* nodestatus = (int*) calloc(nt*nrnodes,sizeof(int));
-    plhs[6] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
+    plhs[6] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, mxREAL);
     int *nodestatus = (int*) mxGetData(plhs[6]);
 
     //int* bestvar = (int*) calloc(nt*nrnodes,sizeof(int));
-    plhs[8] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
+    plhs[8] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, mxREAL);
     int *bestvar = (int*) mxGetData(plhs[8]);
     
     //int* treemap = (int*) calloc(nt * 2 * nrnodes,sizeof(int));
-    plhs[5] = mxCreateNumericMatrix(nrnodes, 2*nt, mxINT32_CLASS, 0);
+    plhs[5] = mxCreateNumericMatrix(nrnodes, 2*nt, mxINT32_CLASS, mxREAL);
     int *treemap = (int*) mxGetData(plhs[5]);
     
     
     //int* nodepred = (int*) calloc(nt * nrnodes,sizeof(int));
-    plhs[7] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, 0);
+    plhs[7] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, mxREAL);
     int *nodepred = (int*) mxGetData(plhs[7]);
     
     
     //double* xbestsplit = (double*) calloc(nt * nrnodes,sizeof(double));
-    plhs[2] = mxCreateNumericMatrix(nrnodes, nt, mxDOUBLE_CLASS, 0);
+    plhs[2] = mxCreateNumericMatrix(nrnodes, nt, mxDOUBLE_CLASS, mxREAL);
     double *xbestsplit = (double*) mxGetData(plhs[2]);
 
-    plhs[17] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+    plhs[17] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, mxREAL);
     double* errtr = (double*) mxGetData(plhs[17]); //calloc((nclass+1) * ntree,sizeof(double));
     
     int testdat=0;
     double* countts;
     int* inbag;
     if (keep_inbag){
-        plhs[18] = mxCreateNumericMatrix(n_size, ntree, mxINT32_CLASS, 0);
+        plhs[18] = mxCreateNumericMatrix(n_size, ntree, mxINT32_CLASS, mxREAL);
         inbag = (int*) mxGetData(plhs[18]);//calloc(n_size,sizeof(int));
     }else{
-        plhs[18] = mxCreateNumericMatrix(n_size, 1, mxINT32_CLASS, 0);
+        plhs[18] = mxCreateNumericMatrix(n_size, 1, mxINT32_CLASS, mxREAL);
         inbag = (int*) mxGetData(plhs[18]);//calloc(n_size*ntree,sizeof(int));
     }
     if (DEBUG_ON){
@@ -211,18 +211,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
         xts = mxGetPr(prhs[19]);
         yts = (int*)mxGetData(prhs[20]);
         nts = (int)mxGetScalar(prhs[21]);
-        plhs[19] = mxCreateNumericMatrix(nts, 1, mxINT32_CLASS, 0);
+        plhs[19] = mxCreateNumericMatrix(nts, 1, mxINT32_CLASS, mxREAL);
         outclts = (int*)mxGetData(plhs[19]);
         countts = (double*) calloc(nclass * nts,sizeof(double));
         if (proximity){
-            plhs[20] = mxCreateNumericMatrix(nts, nts + n_size, mxDOUBLE_CLASS, 0);
+            plhs[20] = mxCreateNumericMatrix(nts, nts + n_size, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
         }else{
-            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(1,sizeof(double));
             proxts[0]=1;
         }
-        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, mxREAL);
         errts = (double*) mxGetData(plhs[21]); //calloc((nclass+1) * ntree,sizeof(double));
         labelts=1;
         testdat=1;
@@ -230,18 +230,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
         xts = (double*)malloc(sizeof(double)*1);
         yts = (int*)malloc(sizeof(int)*1);
         nts = 1;
-        plhs[19] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, 0);
+        plhs[19] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
         outclts = (int*)mxGetData(plhs[19]);
         countts = (double*) calloc(nclass * nts,sizeof(double));
         if (proximity){
-            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
         }else{
-            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, 0);
+            plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(1,sizeof(double));
             proxts[0]=1;
         }
-        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, 0);
+        plhs[21] = mxCreateNumericMatrix((nclass+1), ntree, mxDOUBLE_CLASS, mxREAL);
         errts = (double*) mxGetData(plhs[21]); //calloc((nclass+1) * ntree,sizeof(double));
         labelts=0;
         testdat=0;

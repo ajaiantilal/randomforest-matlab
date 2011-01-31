@@ -20,7 +20,7 @@ BUILD=tempbuild/
 
 CC=g++
 FORTRAN=gfortran # or g77 whichever is present
-CFLAGS= -fpic -O2 -funroll-loops -msse3 #-g -Wall
+CFLAGS= -fpic -O2 -funroll-loops -msse3  -Wall
 FFLAGS=-O2 -fpic #-g -Wall
 LDFORTRAN=#-gfortran
 MEXFLAGS=-g
