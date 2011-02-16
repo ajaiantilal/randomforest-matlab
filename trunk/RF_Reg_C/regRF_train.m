@@ -115,6 +115,7 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
         if isfield(extra_options,'do_trace');  do_trace = extra_options.do_trace;       end
         if isfield(extra_options,'corr_bias');  corr_bias = extra_options.corr_bias;       end
         if isfield(extra_options,'keep_inbag');  keep_inbag = extra_options.keep_inbag;       end
+		if isfield(extra_options,'print_verbose_tree_progression');  print_verbose_tree_progression = extra_options.print_verbose_tree_progression;       end
     end
     
     
@@ -141,7 +142,8 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
     if ~exist('do_trace','var');    do_trace = FALSE; end
     if ~exist('corr_bias','var');   corr_bias = FALSE; end
     if ~exist('keep_inbag','var');  keep_inbag = FALSE; end
-    
+    if ~exist('print_verbose_tree_progression','var');  print_verbose_tree_progression = FALSE; end
+
     
     if ~exist('ntree','var') | ntree<=0
 		ntree=500;
@@ -285,7 +287,7 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
         impSD,prox,coef,oob_times,inbag]...
         = mexRF_train (X',Y,ntree,mtry,sampsize,nodesize,...
                        int32(Options),int32(ncat),int32(maxcat),int32(do_trace), int32(proximity), int32(oob_prox), ...
-                       int32(corr_bias), keep_inbag, replace    );
+                       int32(corr_bias), keep_inbag, replace,int32(print_verbose_tree_progression));
     
     %done in R file so doing it too.
     ypred(oob_times==0)=NaN;

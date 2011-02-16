@@ -12,13 +12,13 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
 	     int *nodeclass, double *xbestsplit, double *errtr,
 	     int *testdat, double *xts, int *clts, int *nts, double *countts,
 	     int *outclts, int labelts, double *proxts, double *errts,
-             int *inbag);
+         int *inbag, int print_verbose_tree_progression);
 
 void mexFunction( int nlhs, mxArray *plhs[], 
 		  int nrhs, const mxArray*prhs[] )
      
 { 
-	if(nrhs==22);
+	if(nrhs==23);
     else{
 		printf("Too less/many parameters: You supplied %d",nrhs);
 		return;
@@ -247,7 +247,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         testdat=0;
     }
      
-    
+	int print_verbose_tree_progression = (int)mxGetScalar(prhs[22]);
+
     //mexPrintf("tst available %d  %d\n",tst_available,nts);
     classRF(x, dimx, y, &nclass, cat, &maxcat,
 	     sampsize, strata, Options, &ntree, &mtry,&ipi, 
@@ -255,7 +256,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	     impout, impSD, impmat, &nrnodes,ndbigtree, nodestatus, 
          bestvar, treemap,nodepred, xbestsplit, errtr,&testdat, 
          xts, yts, &nts, countts,outclts, labelts, 
-         proxts, errts,inbag);
+         proxts, errts,inbag,print_verbose_tree_progression);
     
             
     

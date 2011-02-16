@@ -54,7 +54,7 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
         double *upper, double *mse, const int *keepf, int *replace,
         int testdat, double *xts, int *nts, double *yts, int labelts,
         double *yTestPred, double *proxts, double *msets, double *coef,
-        int *nout, int *inbag) ;
+        int *nout, int *inbag, int print_verbose_tree_progression) ;
 
 
 #ifdef MATLAB
@@ -286,6 +286,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
             printf("%f,", x[i]);
         printf("\n");
     }
+
+	int print_verbose_tree_progression = (int)mxGetScalar(prhs[15]);
+    
     
     
     regRF(x, y, dimx, &sampsize,
@@ -298,7 +301,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             keepf, &replace, testdat, xts,
             &nts, yts, labelts, yTestPred,
             proxts, msets, coef, nout,
-            inbag) ;
+            inbag,print_verbose_tree_progression) ;
     /*print_regRF_params( dimx, &sampsize,
      * &nodesize, &nrnodes, &ntree, &nvar,
      * imp, cat, maxcat, &jprint,
