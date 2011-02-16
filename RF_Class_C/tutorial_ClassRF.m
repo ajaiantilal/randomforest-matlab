@@ -238,4 +238,12 @@ Y_tst = Y(randvector(251:end));
     test_options.proximity = 1;
     [Y_hat, votes, prediction_per_tree, proximity_ts] = classRF_predict(X_tst,model,test_options);
     fprintf('\nexample 18: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+
+% example 19: to verbosely print the forest creation status, i.e. print after creation of each tree
+    clear extra_options
+    extra_options.print_verbose_tree_progression = 1; %(Default = 0)
+   
+    model = classRF_train(X_trn,Y_trn, 100, 4, extra_options);
+    Y_hat = classRF_predict(X_tst,model);
+    fprintf('\nexample 19: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     

@@ -44,7 +44,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
 	     int *nodeclass, double *xbestsplit, double *errtr,
 	     int *testdat, double *xts, int *clts, int *nts, double *countts,
 	     int *outclts, int labelts, double *proxts, double *errts,
-             int *inbag);
+             int *inbag, int print_verbose_tree_progression);
 
 
 void classForest(int *mdim, int *ntest, int *nclass, int *maxcat,
@@ -225,7 +225,7 @@ int main(){
 	     impout, &impSD, &impmat, &nrnodes,ndbigtree, nodestatus, 
          bestvar, treemap,nodepred, xbestsplit, errtr,&testdat, 
          &xts, &clts, &nts, countts,&outclts, labelts, 
-         &proxts, &errts,inbag);
+         &proxts, &errts,inbag,0);
     
     
     //test the model

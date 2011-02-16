@@ -57,6 +57,12 @@
 #define NODE_INTERIOR -3
 #define NULL 0
 
+#ifdef MATLAB
+#include "mex.h"
+#define Rprintf mexPrintf
+#endif
+
+#include "time.h"
 #include "memory.h"
 #include "stdio.h"
 #include "math.h"
@@ -244,7 +250,7 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
         double *upper, double *mse, const int *keepf, int *replace,
         int testdat, double *xts, int *nts, double *yts, int labelts,
         double *yTestPred, double *proxts, double *msets, double *coef,
-        int *nout, int *inbag) {
+        int *nout, int *inbag, int print_verbose_tree_progression) {
     /*************************************************************************
      * Input:
      * mdim=number of variables in data set
@@ -365,6 +371,9 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
         /*************************************
          * Start the loop over trees.
          *************************************/
+
+		time_t curr_time;
+
         for (j = 0; j < *nTree; ++j) {
             //printf("tree num %d\n",j);fflush(stdout);
             //printf("1. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d\n", *maxcat, *jprint, doProx, oobprox, biasCorr);
@@ -538,7 +547,12 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
                 
             }
 //	printf("3. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
+            if(print_verbose_tree_progression){
+			#ifdef MATLAB
+				time(&curr_time);
+		        mexPrintf("tree num %d created at %s", j, ctime(&curr_time));mexEvalString("drawnow;");
+		    #endif
+			}
         }
         PutRNGstate();
         /* end of tree iterations=======================================*/

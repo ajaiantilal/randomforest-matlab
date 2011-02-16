@@ -92,7 +92,7 @@
 
 function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     DEFAULTS_ON =0;
-    %DEBUG_ON=1;
+%    DEBUG_ON=1;
 
     if exist('Xtst','var') && exist('Ytst','var') 
         if(size(Xtst,1)~=length(Ytst))
@@ -144,6 +144,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         if isfield(extra_options,'do_trace');  do_trace = extra_options.do_trace;       end
         %if isfield(extra_options,'corr_bias');  corr_bias = extra_options.corr_bias;       end
         if isfield(extra_options,'keep_inbag');  keep_inbag = extra_options.keep_inbag;       end
+		if isfield(extra_options,'print_verbose_tree_progression');  print_verbose_tree_progression = extra_options.print_verbose_tree_progression;       end
     end
     keep_forest=1; %always save the trees :)
     
@@ -170,6 +171,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     if ~exist('do_trace','var');    do_trace = FALSE; end
     %if ~exist('corr_bias','var');   corr_bias = FALSE; end
     if ~exist('keep_inbag','var');  keep_inbag = FALSE; end
+    if ~exist('print_verbose_tree_progression','var');  print_verbose_tree_progression = FALSE; end
     
 
     if ~exist('ntree','var') | ntree<=0
@@ -365,6 +367,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         fprintf('classwt %f\n',classwt);
         fprintf('cutoff %f\n',cutoff);
         fprintf('nodesize %f\n',nodesize);
+        fprintf('print verbose %f\n',print_verbose_tree_progression);
     end    
     
     
@@ -373,7 +376,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         = mexClassRF_train(X',int32(Y_new),length(unique(Y)),ntree,mtry,int32(ncat), ... 
                            int32(maxcat), int32(sampsize), strata, Options, int32(ipi), ...
                            classwt, cutoff, int32(nodesize),int32(nsum), int32(n_size), int32(p_size), int32(nsample),...
-                           int32(tst_available), Xtst',int32(Ytst),int32(tst_size));
+                           int32(tst_available), Xtst',int32(Ytst),int32(tst_size), int32(print_verbose_tree_progression));
  	model.nrnodes=nrnodes;
  	model.ntree=ntree;
  	model.xbestsplit=xbestsplit;

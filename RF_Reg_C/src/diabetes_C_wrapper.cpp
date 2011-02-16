@@ -43,7 +43,7 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
         double *upper, double *mse, const int *keepf, int *replace,
         int testdat, double *xts, int *nts, double *yts, int labelts,
         double *yTestPred, double *proxts, double *msets, double *coef,
-        int *nout, int *inbag) ;
+        int *nout, int *inbag, int print_verbose_tree_progression) ;
 	
 
 void regForest(double *x, double *ypred, int *mdim, int *n,
@@ -301,7 +301,7 @@ int main(){
             keepf, &replace, testdat, xts,
             &nts, yts, labelts, yTestPred,
             proxts, msets, coef, nout,
-            inbag) ;
+            inbag,0) ;
     
     //below call just prints individual values
     /*print_regRF_params( dimx, &sampsize,

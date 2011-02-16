@@ -47,6 +47,7 @@
 #include "rf.h"
 #include "stdio.h"
 #include "math.h"
+#include "time.h"
 
 #ifndef MATLAB
 #define Rprintf printf
@@ -147,7 +148,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
         int *nodeclass, double *xbestsplit, double *errtr,
         int *testdat, double *xts, int *clts, int *nts, double *countts,
         int *outclts, int labelts, double *proxts, double *errts,
-        int *inbag) {
+        int *inbag, int print_verbose_tree_progression) {
     /******************************************************************
      *  C wrapper for random forests:  get input from R and drive
      *  the Fortran routines.
@@ -348,6 +349,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     idxByNnode = 0;
     idxByNsample = 0;
     
+	time_t curr_time;
     //Rprintf("addclass %d, ntree %d, cl[300]=%d", addClass,Ntree,cl[299]);
     for(jb = 0; jb < Ntree; jb++) {
 		//Rprintf("addclass %d, ntree %d, cl[300]=%d", addClass,Ntree,cl[299]);
@@ -608,6 +610,13 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
         
         if (keepf) idxByNnode += *nrnodes;
         if (keepInbag) idxByNsample += nsample0;
+
+		if(print_verbose_tree_progression){
+		#ifdef MATLAB
+			time(&curr_time);
+            mexPrintf("tree num %d created at %s", jb, ctime(&curr_time));mexEvalString("drawnow;");
+        #endif
+		}
     }
     PutRNGstate();
    
