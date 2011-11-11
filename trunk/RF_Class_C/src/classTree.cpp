@@ -95,7 +95,7 @@ void F77_NAME(catmax)
     int j, k, n, icat[32], nsplit;
     double leftNum, leftDen, rightNum, decGini, *leftCatClassCount;
 
-    leftCatClassCount = (double *) calloc(*nclass, sizeof(double));
+    leftCatClassCount = (double *) mxCalloc(*nclass, sizeof(double));
     *nhit = 0;
     nsplit = *lcat > *ncmax ?
         *ncsplit : (int) pow(2.0, (double) *lcat - 1) - 1;
@@ -138,7 +138,7 @@ void F77_NAME(catmax)
             *ncatsp = *lcat > *ncmax ? pack((unsigned int) *lcat, icat) : n + 1;
         }
     }
-    free(leftCatClassCount);
+    mxFree(leftCatClassCount);
 }
 
 
@@ -219,7 +219,7 @@ void predictClassTree(double *x, int n, int mdim, int *treemap,
     //Rprintf("maxcat %d\n",maxcat);
     /* decode the categorical splits */
     if (maxcat > 1) {
-        cbestsplit = (int *) calloc(maxcat * treeSize, sizeof(int));
+        cbestsplit = (int *) mxCalloc(maxcat * treeSize, sizeof(int));
         zeroInt(cbestsplit, maxcat * treeSize);
         for (i = 0; i < treeSize; ++i) {
             if (nodestatus[i] != NODE_TERMINAL) {
@@ -251,5 +251,5 @@ void predictClassTree(double *x, int n, int mdim, int *treemap,
         jts[i] = nodeclass[k];
         nodex[i] = k + 1;
     }
-    if (maxcat > 1) free(cbestsplit);
+    if (maxcat > 1) mxFree(cbestsplit);
 }
