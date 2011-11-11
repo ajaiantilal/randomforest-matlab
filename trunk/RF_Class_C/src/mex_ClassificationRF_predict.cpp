@@ -1,6 +1,5 @@
 #include <math.h>
 #include "mex.h"
-#include "memory.h"
 
 #define DEBUG_ON 0
 void classForest(int *mdim, int *ntest, int *nclass, int *maxcat,
@@ -26,7 +25,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     int nclass =  (int)mxGetScalar(prhs[11]);
     
-    int* cat = (int*)calloc(p_size,sizeof(int));
+    int* cat = (int*)mxCalloc(p_size,sizeof(int));
     for(i=0;i<p_size;i++) cat[i]=1;
     
     int maxcat=1;
@@ -70,28 +69,28 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double xts=1;
     int clts = 1; 
     int ntest = n_size;
-    double* countts;// = (double*) calloc(nclass * ntest,sizeof(double));
+    double* countts;// = (double*) mxCalloc(nclass * ntest,sizeof(double));
     int outclts = 1;
     int labelts=0;
     double proxts=1;
     double errts=1;
-    //int* inbag = (int*) calloc(n_size,sizeof(int));
+    //int* inbag = (int*) mxCalloc(n_size,sizeof(int));
     int* jts; 
     int* jet;
     int keepPred=(int)mxGetScalar(prhs[12]);
     int nodes=0;
     int* nodexts;
     if (nodes)
-        nodexts = (int*)calloc(ntest*ntree,sizeof(int));
+        nodexts = (int*)mxCalloc(ntest*ntree,sizeof(int));
     else
-        nodexts = (int*)calloc(ntest,sizeof(int));
+        nodexts = (int*)mxCalloc(ntest,sizeof(int));
     
     double *proxMat;
     int ndim=2;
     int dims_ntest[]={1,1};
     
     if(proximity){
-        //proxMat = (double*)calloc(ntest*ntest,sizeof(double));
+        //proxMat = (double*)mxCalloc(ntest*ntest,sizeof(double));
         dims_ntest[0] = ntest;
         dims_ntest[1] = ntest;
         plhs[3] = mxCreateNumericArray(ndim, dims_ntest, mxDOUBLE_CLASS, mxREAL);
@@ -101,7 +100,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         dims_ntest[1] = 1;
         plhs[3] = mxCreateNumericArray(ndim, dims_ntest, mxDOUBLE_CLASS, mxREAL);
         proxMat = (double*)mxGetData(plhs[3]);
-        //proxMat = (double*)calloc(1,sizeof(double));
+        //proxMat = (double*)mxCalloc(1,sizeof(double));
         proxMat[0]=1;
     }
     int* treeSize = ndbigtree;
@@ -167,7 +166,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     fflush(stdout);
     
-    free(cat);
-    free(nodexts);
+    mxFree(cat);
+    mxFree(nodexts);
     //free(proxMat);    
 }
