@@ -110,13 +110,8 @@ extern "C"{
     #endif     
 }
 
-
 double unif_rand(){
     return (((double)randomMT())/((double)MAX_UINT_COKUS));
-}
-
-void* S_alloc_alt(int a, int b) {
-    return(calloc(a, b));
 }
 
 void GetRNGstate(){};
@@ -236,42 +231,41 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     printf("\noobprox %d, mdim %d, nsample0 %d, Ntree %d, mtry %d, mimp %d", oobprox, mdim, nsample0, Ntree, mtry, mimp);
     printf("\nstratify %d, replace %d",stratify,replace);
     printf("\n");*/
-    tgini =      (double *) S_alloc_alt(mdim, sizeof(double));
-    wl =         (double *) S_alloc_alt(nclass, sizeof(double));
-    wr =         (double *) S_alloc_alt(nclass, sizeof(double));
-    classpop =   (double *) S_alloc_alt(nclass* *nrnodes, sizeof(double));
-    tclasscat =  (double *) S_alloc_alt(nclass*32, sizeof(double));
-    tclasspop =  (double *) S_alloc_alt(nclass, sizeof(double));
-    tx =         (double *) S_alloc_alt(nsample, sizeof(double));
-    win =        (double *) S_alloc_alt(nsample, sizeof(double));
-    tp =         (double *) S_alloc_alt(nsample, sizeof(double));
-    
-    out =           (int *) S_alloc_alt(nsample, sizeof(int));
-    bestsplitnext = (int *) S_alloc_alt(*nrnodes, sizeof(int));
-    bestsplit =     (int *) S_alloc_alt(*nrnodes, sizeof(int));
-    nodepop =       (int *) S_alloc_alt(*nrnodes, sizeof(int));
-    nodestart =     (int *) S_alloc_alt(*nrnodes, sizeof(int));
-    jin =           (int *) S_alloc_alt(nsample, sizeof(int));
-    nodex =         (int *) S_alloc_alt(nsample, sizeof(int));
-    nodexts =       (int *) S_alloc_alt(ntest, sizeof(int));
-    ta =            (int *) S_alloc_alt(nsample, sizeof(int));
-    ncase =         (int *) S_alloc_alt(nsample, sizeof(int));
-    jerr =          (int *) S_alloc_alt(nsample, sizeof(int));
-    varUsed =       (int *) S_alloc_alt(mdim, sizeof(int));
-    jtr =           (int *) S_alloc_alt(nsample, sizeof(int));
-    jvr =           (int *) S_alloc_alt(nsample, sizeof(int));
-    classFreq =     (int *) S_alloc_alt(nclass, sizeof(int));
-    jts =           (int *) S_alloc_alt(ntest, sizeof(int));
-    idmove =        (int *) S_alloc_alt(nsample, sizeof(int));
-    at =            (int *) S_alloc_alt(mdim*nsample, sizeof(int));
-    a =             (int *) S_alloc_alt(mdim*nsample, sizeof(int));
-    b =             (int *) S_alloc_alt(mdim*nsample, sizeof(int));
-    mind =          (int *) S_alloc_alt(mdim, sizeof(int));
-    nright =        (int *) S_alloc_alt(nclass, sizeof(int));
-    nrightimp =     (int *) S_alloc_alt(nclass, sizeof(int));
-    nout =          (int *) S_alloc_alt(nclass, sizeof(int));
+    tgini =      (double *) mxCalloc(mdim, sizeof(double));
+    wl =         (double *) mxCalloc(nclass, sizeof(double));
+    wr =         (double *) mxCalloc(nclass, sizeof(double));
+    classpop =   (double *) mxCalloc(nclass* *nrnodes, sizeof(double));
+    tclasscat =  (double *) mxCalloc(nclass*32, sizeof(double));
+    tclasspop =  (double *) mxCalloc(nclass, sizeof(double));
+    tx =         (double *) mxCalloc(nsample, sizeof(double));
+    win =        (double *) mxCalloc(nsample, sizeof(double));
+    tp =         (double *) mxCalloc(nsample, sizeof(double));
+    out =           (int *) mxCalloc(nsample, sizeof(int));
+    bestsplitnext = (int *) mxCalloc(*nrnodes, sizeof(int));
+    bestsplit =     (int *) mxCalloc(*nrnodes, sizeof(int));
+    nodepop =       (int *) mxCalloc(*nrnodes, sizeof(int));
+    nodestart =     (int *) mxCalloc(*nrnodes, sizeof(int));
+    jin =           (int *) mxCalloc(nsample, sizeof(int));
+    nodex =         (int *) mxCalloc(nsample, sizeof(int));
+    nodexts =       (int *) mxCalloc(ntest, sizeof(int));
+    ta =            (int *) mxCalloc(nsample, sizeof(int));
+    ncase =         (int *) mxCalloc(nsample, sizeof(int));
+    jerr =          (int *) mxCalloc(nsample, sizeof(int));
+    varUsed =       (int *) mxCalloc(mdim, sizeof(int));
+    jtr =           (int *) mxCalloc(nsample, sizeof(int));
+    jvr =           (int *) mxCalloc(nsample, sizeof(int));
+    classFreq =     (int *) mxCalloc(nclass, sizeof(int));
+    jts =           (int *) mxCalloc(ntest, sizeof(int));
+    idmove =        (int *) mxCalloc(nsample, sizeof(int));
+    at =            (int *) mxCalloc(mdim*nsample, sizeof(int));
+    a =             (int *) mxCalloc(mdim*nsample, sizeof(int));
+    b =             (int *) mxCalloc(mdim*nsample, sizeof(int));
+    mind =          (int *) mxCalloc(mdim, sizeof(int));
+    nright =        (int *) mxCalloc(nclass, sizeof(int));
+    nrightimp =     (int *) mxCalloc(nclass, sizeof(int));
+    nout =          (int *) mxCalloc(nclass, sizeof(int));
     if (oobprox) {
-        oobpair = (int *) S_alloc_alt(near*near, sizeof(int));
+        oobpair = (int *) mxCalloc(near*near, sizeof(int));
     }
     //printf("nsample=%d mdim=%d nclass=%d  nsample0=%d nsample=%d ntest=%d\n", nsample, mdim,nclass, nsample0, nsample, ntest);
     /* Count number of cases in each class. */
@@ -290,13 +284,13 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             if (strata[n] > nstrata) nstrata = strata[n];
         /* Create the array of pointers, each pointing to a vector
          * of indices of where data of each stratum is. */
-        strata_size = (int  *) S_alloc_alt(nstrata, sizeof(int));
+        strata_size = (int  *) mxCalloc(nstrata, sizeof(int));
         for (n = 0; n < nsample0; ++n) {
             strata_size[strata[n] - 1] ++;
         }
-        strata_idx =  (int **) S_alloc_alt(nstrata, sizeof(int *));
+        strata_idx =  (int **) mxCalloc(nstrata, sizeof(int *));
         for (n = 0; n < nstrata; ++n) {
-            strata_idx[n] = (int *) S_alloc_alt(strata_size[n], sizeof(int));
+            strata_idx[n] = (int *) mxCalloc(strata_size[n], sizeof(int));
         }
         zeroInt(strata_size, nstrata);
         for (n = 0; n < nsample0; ++n) {
@@ -304,7 +298,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
             strata_idx[strata[n] - 1][strata_size[strata[n] - 1] - 1] = n;
         }
     } else {
-        nind = replace ? NULL : (int *) S_alloc_alt(nsample, sizeof(int));
+        nind = replace ? NULL : (int *) mxCalloc(nsample, sizeof(int));
     }
     
     /*    INITIALIZE FOR RUN */
@@ -315,7 +309,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     zeroDouble(errtr, (nclass + 1) * Ntree);
     
     if (labelts) {
-        nclts  = (int *) S_alloc_alt(nclass, sizeof(int));
+        nclts  = (int *) mxCalloc(nclass, sizeof(int));
         for (n = 0; n < ntest; ++n) nclts[clts[n]-1]++;
         zeroDouble(errts, (nclass + 1) * Ntree);
     }
@@ -463,7 +457,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
                     ndbigtree + jb, win, wr, wl, &mdim,
                     &nuse, mind);
             /* if the "tree" has only the root node, start over */
-        } while (ndbigtree[jb] == 1);
+        } while (ndbigtree[jb] < 1);
         
         Xtranslate(x, mdim, *nrnodes, nsample, bestvar + idxByNnode,
                 bestsplit, bestsplitnext, xbestsplit + idxByNnode,
@@ -675,52 +669,61 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     }
     
     //frees up the memory
-    free(tgini);
-    free(wl);
-    free(wr);
-    free(classpop);
-    free(tclasscat);
-    free(tclasspop);
-    free(tx);
-    free(win);
-    free(tp);
-    free(out);
-    free(bestsplitnext);
-    free(bestsplit);
-    free(nodepop);
-    free(nodestart);
-    free(jin);
-    free(nodex);
-    free(nodexts);
-    free(ta);
-    free(ncase);
-    free(jerr);
-    free(varUsed);
-    free(jtr);
-    free(jvr);
-    free(classFreq);
-    free(jts);
-    free(idmove);free(at);free(a);free(b);free(mind);
-    free(nright);free(nrightimp);free(nout);
+    mxFree(tgini);
+    mxFree(wl);
+    mxFree(wr);
+    mxFree(classpop);
+    mxFree(tclasscat);
+    mxFree(tclasspop);
+    mxFree(tx);
+    mxFree(win);
+    mxFree(tp);
+    mxFree(out);
+    
+    mxFree(bestsplitnext);
+    mxFree(bestsplit);
+    mxFree(nodepop);
+    mxFree(nodestart);
+    mxFree(jin);
+    mxFree(nodex);
+    mxFree(nodexts);
+    mxFree(ta);
+    mxFree(ncase);
+    mxFree(jerr);
+    
+    mxFree(varUsed);
+    mxFree(jtr);
+    mxFree(jvr);
+    mxFree(classFreq);
+    mxFree(jts);
+    mxFree(idmove);
+    mxFree(at);
+    mxFree(a);
+    mxFree(b);
+    mxFree(mind);
+    
+    mxFree(nright);
+    mxFree(nrightimp);
+    mxFree(nout);
     
     if (oobprox) {
-        free(oobpair);
+        mxFree(oobpair);
     }
     
     if (stratify) {
-        free(strata_size);
+        mxFree(strata_size);
         for (n = 0; n < nstrata; ++n) {
-            free(strata_idx[n]);
+            mxFree(strata_idx[n]);
         }
-        free(strata_idx);        
+        mxFree(strata_idx);        
     } else {
         if (replace)
-            free(nind);
+            mxFree(nind);
     }
     //printf("labelts %d\n",labelts);fflush(stdout);
     fflush(stdout);
     if (labelts) {
-        free(nclts);        
+        mxFree(nclts);        
     }
     //printf("stratify %d",stratify);fflush(stdout);
 }
@@ -813,7 +816,7 @@ void oob(int nsample, int nclass, int *jin, int *cl, int *jtr, int *jerr,
     int j, n, noob, *noobcl, ntie;
     double qq, smax, smaxtr;
     
-    noobcl  = (int *) S_alloc_alt(nclass, sizeof(int));
+    noobcl  = (int *) mxCalloc(nclass, sizeof(int));
     zeroInt(jerr, nsample);
     zeroDouble(errtr, nclass+1);
     
@@ -852,7 +855,7 @@ void oob(int nsample, int nclass, int *jin, int *cl, int *jtr, int *jerr,
     }
     errtr[0] /= noob;
     for (n = 1; n <= nclass; ++n) errtr[n] /= noobcl[n-1];
-    free(noobcl);
+    mxFree(noobcl);
 }
 
 
