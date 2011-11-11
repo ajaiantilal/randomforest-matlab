@@ -10,7 +10,7 @@
  * 
  * important changes (other than the many commented out printf's)
  * 1. Added function to print up parameter values
- * 2. emulated all R calls. so instead of S_alloc, used calloc
+ * 2. emulated all R calls. so instead of S_alloc, used mxCalloc
  * 3. checked with valgrind so that memory is not lost
  * 4. substituted random number generator from R's to mersenne twister from
  *    Matsumoto et al and Shawn Cokus.
@@ -32,9 +32,9 @@
 /*******************************************************************
  * Copyright (C) 2001-7 Leo Breiman, Adele Cutler and Merck & Co., Inc.
  *
- * This program is free software; you can redistribute it and/or
+ * This program is mxFree software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the mxFree Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -48,7 +48,7 @@
  * original Fortran code.
  *
  *      copyright 1999 by leo Breiman
- *      this is free software and can be used for any purpose.
+ *      this is mxFree software and can be used for any purpose.
  *      It comes with no guarantee.
  *
  ******************************************************************/
@@ -169,7 +169,7 @@ void permuteOOB(int m, double *x, int *in, int nsample, int mdim) {
     double *tp, tmp;
     int i, last, k, nOOB = 0;
     
-    tp = (double *) calloc(nsample , sizeof(double));
+    tp = (double *) mxCalloc(nsample , sizeof(double));
     
     for (i = 0; i < nsample; ++i) {
         /* make a copy of the OOB part of the data into tp (for permuting) */
@@ -196,7 +196,7 @@ void permuteOOB(int m, double *x, int *in, int nsample, int mdim) {
             nOOB++;
         }
     }
-    free(tp);
+    mxFree(tp);
 }
 
 
@@ -301,341 +301,340 @@ void regRF(double *x, double *y, int *xdim, int *sampsize,
     
     if (*jprint == 0) *jprint = *nTree + 1;
     
-    yb         = (double *) calloc(*sampsize, sizeof(double));
-    xb         = (double *) calloc(mdim * *sampsize, sizeof(double));
-    ytr        = (double *) calloc(nsample, sizeof(double));
-    xtmp       = (double *) calloc(nsample, sizeof(double));
-    resOOB     = (double *) calloc(nsample, sizeof(double));
-    
-    in        = (int *) calloc(nsample, sizeof(int));
-    nodex      = (int *) calloc(nsample, sizeof(int));
-    varUsed    = (int *) calloc(mdim, sizeof(int));
-    nind = *replace ? NULL : (int *) calloc(nsample, sizeof(int));
+    yb         = (double *) mxCalloc(*sampsize, sizeof(double));
+    xb         = (double *) mxCalloc(mdim * *sampsize, sizeof(double));
+    ytr        = (double *) mxCalloc(nsample, sizeof(double));
+    xtmp       = (double *) mxCalloc(nsample, sizeof(double));
+    resOOB     = (double *) mxCalloc(nsample, sizeof(double));
+    in        = (int *) mxCalloc(nsample, sizeof(int));
+    nodex      = (int *) mxCalloc(nsample, sizeof(int));
+    varUsed    = (int *) mxCalloc(mdim, sizeof(int));
+    nind = *replace ? NULL : (int *) mxCalloc(nsample, sizeof(int));
     
     if (testdat) {
-        ytree      = (double *) calloc(ntest, sizeof(double));
-        nodexts    = (int *) calloc(ntest, sizeof(int));
+        ytree      = (double *) mxCalloc(ntest, sizeof(double));
+        nodexts    = (int *) mxCalloc(ntest, sizeof(int));
     }
     oobpair = (doProx && oobprox) ?
-        (int *) calloc(nsample * nsample, sizeof(int)) : NULL;
+        (int *) mxCalloc(nsample * nsample, sizeof(int)) : NULL;
         
-        /* If variable importance is requested, tgini points to the second
+    /* If variable importance is requested, tgini points to the second
        "column" of errimp, otherwise it's just the same as errimp. */
-        tgini = varImp ? errimp + mdim : errimp;
+    tgini = varImp ? errimp + mdim : errimp;
         
-        averrb = 0.0;
-        meanY = 0.0;
-        varY = 0.0;
-        
-        zeroDouble(yptr, nsample);
-        zeroInt(nout, nsample);
-        for (n = 0; n < nsample; ++n) {
-            varY += n * (y[n] - meanY)*(y[n] - meanY) / (n + 1);
-            meanY = (n * meanY + y[n]) / (n + 1);
+    averrb = 0.0;
+    meanY = 0.0;
+    varY = 0.0;
+    
+    zeroDouble(yptr, nsample);
+    zeroInt(nout, nsample);
+    for (n = 0; n < nsample; ++n) {
+        varY += n * (y[n] - meanY)*(y[n] - meanY) / (n + 1);
+        meanY = (n * meanY + y[n]) / (n + 1);
+    }
+    varY /= nsample;
+    
+    varYts = 0.0;
+    meanYts = 0.0;
+    if (testdat) {
+        for (n = 0; n < ntest; ++n) {
+            varYts += n * (yts[n] - meanYts)*(yts[n] - meanYts) / (n + 1);
+            meanYts = (n * meanYts + yts[n]) / (n + 1);
         }
-        varY /= nsample;
+        varYts /= ntest;
+    }
+    
+    if (doProx) {
+        zeroDouble(prox, nsample * nsample);
+        if (testdat) zeroDouble(proxts, ntest * (nsample + ntest));
+    }
+    
+    if (varImp) {
+        zeroDouble(errimp, mdim * 2);
+        if (localImp) zeroDouble(impmat, nsample * mdim);
+    } else {
+        zeroDouble(errimp, mdim);
+    }
+    if (labelts) zeroDouble(yTestPred, ntest);
+    
+    /* print header for running output */
+    if (*jprint <= *nTree) {
+        printf("     |      Out-of-bag   ");
+        if (testdat) printf("|       Test set    ");
+        printf("|\n");
+        printf("Tree |      MSE  %%Var(y) ");
+        if (testdat) printf("|      MSE  %%Var(y) ");
+        printf("|\n");
+    }
+    GetRNGstate();
+    /*************************************
+     * Start the loop over trees.
+     *************************************/
+    
+    time_t curr_time;
+    
+    for (j = 0; j < *nTree; ++j) {
+        //printf("tree num %d\n",j);fflush(stdout);
+        //printf("1. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d\n", *maxcat, *jprint, doProx, oobprox, biasCorr);
         
-        varYts = 0.0;
-        meanYts = 0.0;
-        if (testdat) {
-            for (n = 0; n < ntest; ++n) {
-                varYts += n * (yts[n] - meanYts)*(yts[n] - meanYts) / (n + 1);
-                meanYts = (n * meanYts + yts[n]) / (n + 1);
-            }
-            varYts /= ntest;
-        }
-        
-        if (doProx) {
-            zeroDouble(prox, nsample * nsample);
-            if (testdat) zeroDouble(proxts, ntest * (nsample + ntest));
-        }
-        
-        if (varImp) {
-            zeroDouble(errimp, mdim * 2);
-            if (localImp) zeroDouble(impmat, nsample * mdim);
-        } else {
-            zeroDouble(errimp, mdim);
-        }
-        if (labelts) zeroDouble(yTestPred, ntest);
-        
-        /* print header for running output */
-        if (*jprint <= *nTree) {
-            printf("     |      Out-of-bag   ");
-            if (testdat) printf("|       Test set    ");
-            printf("|\n");
-            printf("Tree |      MSE  %%Var(y) ");
-            if (testdat) printf("|      MSE  %%Var(y) ");
-            printf("|\n");
-        }
-        GetRNGstate();
-        /*************************************
-         * Start the loop over trees.
-         *************************************/
-
-		time_t curr_time;
-
-        for (j = 0; j < *nTree; ++j) {
-            //printf("tree num %d\n",j);fflush(stdout);
-            //printf("1. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d\n", *maxcat, *jprint, doProx, oobprox, biasCorr);
-            
-            idx = keepF ? j * *nrnodes : 0;
-            zeroInt(in, nsample);
-            zeroInt(varUsed, mdim);
-            /* Draw a random sample for growing a tree. */
+        idx = keepF ? j * *nrnodes : 0;
+        zeroInt(in, nsample);
+        zeroInt(varUsed, mdim);
+        /* Draw a random sample for growing a tree. */
 //		printf("1.8. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            if (*replace) { /* sampling with replacement */
-                for (n = 0; n < *sampsize; ++n) {
-                    xrand = unif_rand();
-                    k = xrand * nsample;
-                    in[k] = 1;
-                    yb[n] = y[k];
-                    for(m = 0; m < mdim; ++m) {
-                        xb[m + n * mdim] = x[m + k * mdim];
-                    }
-                }
-            } else { /* sampling w/o replacement */
-                for (n = 0; n < nsample; ++n) nind[n] = n;
-                last = nsample - 1;
-                for (n = 0; n < *sampsize; ++n) {
-                    ktmp = (int) (unif_rand() * (last+1));
-                    k = nind[ktmp];
-                    swapInt(nind[ktmp], nind[last]);
-                    last--;
-                    in[k] = 1;
-                    yb[n] = y[k];
-                    for(m = 0; m < mdim; ++m) {
-                        xb[m + n * mdim] = x[m + k * mdim];
-                    }
+        
+        if (*replace) { /* sampling with replacement */
+            for (n = 0; n < *sampsize; ++n) {
+                xrand = unif_rand();
+                k = xrand * nsample;
+                in[k] = 1;
+                yb[n] = y[k];
+                for(m = 0; m < mdim; ++m) {
+                    xb[m + n * mdim] = x[m + k * mdim];
                 }
             }
-            if (keepInbag) {
-                for (n = 0; n < nsample; ++n) inbag[n + j * nsample] = in[n];
+        } else { /* sampling w/o replacement */
+            for (n = 0; n < nsample; ++n) nind[n] = n;
+            last = nsample - 1;
+            for (n = 0; n < *sampsize; ++n) {
+                ktmp = (int) (unif_rand() * (last+1));
+                k = nind[ktmp];
+                swapInt(nind[ktmp], nind[last]);
+                last--;
+                in[k] = 1;
+                yb[n] = y[k];
+                for(m = 0; m < mdim; ++m) {
+                    xb[m + n * mdim] = x[m + k * mdim];
+                }
             }
+        }
+        if (keepInbag) {
+            for (n = 0; n < nsample; ++n) inbag[n + j * nsample] = in[n];
+        }
 //		printf("1.9. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            /* grow the regression tree */
-            regTree(xb, yb, mdim, *sampsize, lDaughter + idx, rDaughter + idx,
-                    upper + idx, avnode + idx, nodestatus + idx, *nrnodes,
-                    treeSize + j, *nthsize, *mtry, mbest + idx, cat, tgini,
-                    varUsed);
-            /* predict the OOB data with the current tree */
-            /* ytr is the prediction on OOB data by the current tree */
-            
+        
+        /* grow the regression tree */
+        regTree(xb, yb, mdim, *sampsize, lDaughter + idx, rDaughter + idx,
+                upper + idx, avnode + idx, nodestatus + idx, *nrnodes,
+                treeSize + j, *nthsize, *mtry, mbest + idx, cat, tgini,
+                varUsed);
+        /* predict the OOB data with the current tree */
+        /* ytr is the prediction on OOB data by the current tree */
+        
 //		printf("2. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            predictRegTree(x, nsample, mdim, lDaughter + idx,
-                    rDaughter + idx, nodestatus + idx, ytr, upper + idx,
-                    avnode + idx, mbest + idx, treeSize[j], cat, maxcat,
-                    nodex);
-            /* yptr is the aggregated prediction by all trees grown so far */
-            errb = 0.0;
-            ooberr = 0.0;
-            jout = 0; /* jout is the number of cases that has been OOB so far */
-            nOOB = 0; /* nOOB is the number of OOB samples for this tree */
-            for (n = 0; n < nsample; ++n) {
-                if (in[n] == 0) {
-                    nout[n]++;
-                    nOOB++;
-                    yptr[n] = ((nout[n]-1) * yptr[n] + ytr[n]) / nout[n];
-                    resOOB[n] = ytr[n] - y[n];
-                    ooberr += resOOB[n] * resOOB[n];
-                }
-                if (nout[n]) {
-                    jout++;
-                    errb += (y[n] - yptr[n]) * (y[n] - yptr[n]);
-                }
+        
+        predictRegTree(x, nsample, mdim, lDaughter + idx,
+                rDaughter + idx, nodestatus + idx, ytr, upper + idx,
+                avnode + idx, mbest + idx, treeSize[j], cat, maxcat,
+                nodex);
+        /* yptr is the aggregated prediction by all trees grown so far */
+        errb = 0.0;
+        ooberr = 0.0;
+        jout = 0; /* jout is the number of cases that has been OOB so far */
+        nOOB = 0; /* nOOB is the number of OOB samples for this tree */
+        for (n = 0; n < nsample; ++n) {
+            if (in[n] == 0) {
+                nout[n]++;
+                nOOB++;
+                yptr[n] = ((nout[n]-1) * yptr[n] + ytr[n]) / nout[n];
+                resOOB[n] = ytr[n] - y[n];
+                ooberr += resOOB[n] * resOOB[n];
             }
-            errb /= jout;
-            /* Do simple linear regression of y on yhat for bias correction. */
-            if (biasCorr) simpleLinReg(nsample, yptr, y, coef, &errb, nout);
+            if (nout[n]) {
+                jout++;
+                errb += (y[n] - yptr[n]) * (y[n] - yptr[n]);
+            }
+        }
+        errb /= jout;
+        /* Do simple linear regression of y on yhat for bias correction. */
+        if (biasCorr) simpleLinReg(nsample, yptr, y, coef, &errb, nout);
 //printf("2.5.maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d\n", maxcat, *jprint, doProx, oobprox, biasCorr);
-            
-            /* predict testset data with the current tree */
-            if (testdat) {
-                predictRegTree(xts, ntest, mdim, lDaughter + idx,
-                        rDaughter + idx, nodestatus + idx, ytree,
-                        upper + idx, avnode + idx,
-                        mbest + idx, treeSize[j], cat, maxcat, nodexts);
-                /* ytree is the prediction for test data by the current tree */
-                /* yTestPred is the average prediction by all trees grown so far */
-                errts = 0.0;
+        
+        /* predict testset data with the current tree */
+        if (testdat) {
+            predictRegTree(xts, ntest, mdim, lDaughter + idx,
+                    rDaughter + idx, nodestatus + idx, ytree,
+                    upper + idx, avnode + idx,
+                    mbest + idx, treeSize[j], cat, maxcat, nodexts);
+            /* ytree is the prediction for test data by the current tree */
+            /* yTestPred is the average prediction by all trees grown so far */
+            errts = 0.0;
+            for (n = 0; n < ntest; ++n) {
+                yTestPred[n] = (j * yTestPred[n] + ytree[n]) / (j + 1);
+            }
+            /* compute testset MSE */
+            if (labelts) {
                 for (n = 0; n < ntest; ++n) {
-                    yTestPred[n] = (j * yTestPred[n] + ytree[n]) / (j + 1);
+                    resid = biasCorr ?
+                        yts[n] - (coef[0] + coef[1]*yTestPred[n]) :
+                        yts[n] - yTestPred[n];
+                        errts += resid * resid;
                 }
-                /* compute testset MSE */
-                if (labelts) {
-                    for (n = 0; n < ntest; ++n) {
-                        resid = biasCorr ?
-                            yts[n] - (coef[0] + coef[1]*yTestPred[n]) :
-                            yts[n] - yTestPred[n];
-                            errts += resid * resid;
-                    }
-                    errts /= ntest;
-                }
+                errts /= ntest;
             }
+        }
 //printf("2.6.maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d, testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            /* Print running output. */
-            if ((j + 1) % *jprint == 0) {
-                printf("%4d |", j + 1);
-                printf(" %8.4g %8.2f ", errb, 100 * errb / varY);
-                if(labelts == 1) printf("| %8.4g %8.2f ",
-                        errts, 100.0 * errts / varYts);
-                printf("|\n");
-            }
-            
+        
+        /* Print running output. */
+        if ((j + 1) % *jprint == 0) {
+            printf("%4d |", j + 1);
+            printf(" %8.4g %8.2f ", errb, 100 * errb / varY);
+            if(labelts == 1) printf("| %8.4g %8.2f ",
+                    errts, 100.0 * errts / varYts);
+            printf("|\n");
+        }
+        
 //printf("2.7.maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d, testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            mse[j] = errb;
-            if (labelts) msets[j] = errts;
+        
+        mse[j] = errb;
+        if (labelts) msets[j] = errts;
 //printf("2.701  j %d, nTree %d, errts %f errb %f \n", j, *nTree, errts,errb);
 //printf("2.71.maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d, testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            /*  DO PROXIMITIES */
-            if (doProx) {
-                computeProximity(prox, oobprox, nodex, in, oobpair, nsample);
-                /* proximity for test data */
-                if (testdat) {
-                    /* In the next call, in and oobpair are not used. */
-                    computeProximity(proxts, 0, nodexts, in, oobpair, ntest);
-                    for (n = 0; n < ntest; ++n) {
-                        for (k = 0; k < nsample; ++k) {
-                            if (nodexts[n] == nodex[k]) {
-                                proxts[n + ntest * (k+ntest)] += 1.0;
-                            }
+        
+        /*  DO PROXIMITIES */
+        if (doProx) {
+            computeProximity(prox, oobprox, nodex, in, oobpair, nsample);
+            /* proximity for test data */
+            if (testdat) {
+                /* In the next call, in and oobpair are not used. */
+                computeProximity(proxts, 0, nodexts, in, oobpair, ntest);
+                for (n = 0; n < ntest; ++n) {
+                    for (k = 0; k < nsample; ++k) {
+                        if (nodexts[n] == nodex[k]) {
+                            proxts[n + ntest * (k+ntest)] += 1.0;
                         }
                     }
                 }
             }
+        }
 //printf("2.8.maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d, testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            
-            /* Variable importance */
-            if (varImp) {
-                for (mr = 0; mr < mdim; ++mr) {
-                    if (varUsed[mr]) { /* Go ahead if the variable is used */
-                        /* make a copy of the m-th variable into xtmp */
-                        for (n = 0; n < nsample; ++n)
-                            xtmp[n] = x[mr + n * mdim];
-                        ooberrperm = 0.0;
-                        for (k = 0; k < nPerm; ++k) {
-                            permuteOOB(mr, x, in, nsample, mdim);
-                            predictRegTree(x, nsample, mdim, lDaughter + idx,
-                                    rDaughter + idx, nodestatus + idx, ytr,
-                                    upper + idx, avnode + idx, mbest + idx,
-                                    treeSize[j], cat, maxcat, nodex);
-                            for (n = 0; n < nsample; ++n) {
-                                if (in[n] == 0) {
-                                    r = ytr[n] - y[n];
-                                    ooberrperm += r * r;
-                                    if (localImp) {
-                                        impmat[mr + n * mdim] +=
-                                                (r*r - resOOB[n]*resOOB[n]) / nPerm;
-                                    }
+        
+        /* Variable importance */
+        if (varImp) {
+            for (mr = 0; mr < mdim; ++mr) {
+                if (varUsed[mr]) { /* Go ahead if the variable is used */
+                    /* make a copy of the m-th variable into xtmp */
+                    for (n = 0; n < nsample; ++n)
+                        xtmp[n] = x[mr + n * mdim];
+                    ooberrperm = 0.0;
+                    for (k = 0; k < nPerm; ++k) {
+                        permuteOOB(mr, x, in, nsample, mdim);
+                        predictRegTree(x, nsample, mdim, lDaughter + idx,
+                                rDaughter + idx, nodestatus + idx, ytr,
+                                upper + idx, avnode + idx, mbest + idx,
+                                treeSize[j], cat, maxcat, nodex);
+                        for (n = 0; n < nsample; ++n) {
+                            if (in[n] == 0) {
+                                r = ytr[n] - y[n];
+                                ooberrperm += r * r;
+                                if (localImp) {
+                                    impmat[mr + n * mdim] +=
+                                            (r*r - resOOB[n]*resOOB[n]) / nPerm;
                                 }
                             }
                         }
-                        delta = (ooberrperm / nPerm - ooberr) / nOOB;
-                        errimp[mr] += delta;
-                        impSD[mr] += delta * delta;
-                        /* copy original data back */
-                        for (n = 0; n < nsample; ++n)
-                            x[mr + n * mdim] = xtmp[n];
                     }
-                    
+                    delta = (ooberrperm / nPerm - ooberr) / nOOB;
+                    errimp[mr] += delta;
+                    impSD[mr] += delta * delta;
+                    /* copy original data back */
+                    for (n = 0; n < nsample; ++n)
+                        x[mr + n * mdim] = xtmp[n];
                 }
                 
             }
+            
+        }
 //	printf("3. maxcat %d, jprint %d, doProx %d, oobProx %d, biasCorr %d testdat %d\n", maxcat, *jprint, doProx, oobprox, biasCorr,testdat);
-            if(print_verbose_tree_progression){
-			#ifdef MATLAB
-				time(&curr_time);
-		        mexPrintf("tree num %d created at %s", j, ctime(&curr_time));mexEvalString("drawnow;");
-		    #endif
-			}
+        if(print_verbose_tree_progression){
+            #ifdef MATLAB
+                    time(&curr_time);
+            mexPrintf("tree num %d created at %s", j, ctime(&curr_time));mexEvalString("drawnow;");
+            #endif
         }
-        PutRNGstate();
-        /* end of tree iterations=======================================*/
-        
-        if (biasCorr) {  /* bias correction for predicted values */
-            for (n = 0; n < nsample; ++n) {
-                if (nout[n]) yptr[n] = coef[0] + coef[1] * yptr[n];
+    }
+    PutRNGstate();
+    /* end of tree iterations=======================================*/
+    
+    if (biasCorr) {  /* bias correction for predicted values */
+        for (n = 0; n < nsample; ++n) {
+            if (nout[n]) yptr[n] = coef[0] + coef[1] * yptr[n];
+        }
+        if (testdat) {
+            for (n = 0; n < ntest; ++n) {
+                yTestPred[n] = coef[0] + coef[1] * yTestPred[n];
             }
-            if (testdat) {
-                for (n = 0; n < ntest; ++n) {
-                    yTestPred[n] = coef[0] + coef[1] * yTestPred[n];
+        }
+    }
+    
+    if (doProx) {
+        for (n = 0; n < nsample; ++n) {
+            for (k = n + 1; k < nsample; ++k) {
+                prox[nsample*k + n] /= oobprox ?
+                    (oobpair[nsample*k + n] > 0 ? oobpair[nsample*k + n] : 1) :
+                        *nTree;
+                        prox[nsample * n + k] = prox[nsample * k + n];
+            }
+            prox[nsample * n + n] = 1.0;
+        }
+        if (testdat) {
+            for (n = 0; n < ntest; ++n)
+                for (k = 0; k < ntest + nsample; ++k)
+                    proxts[ntest*k + n] /= *nTree;
+        }
+    }
+    
+    if (varImp) {
+        for (m = 0; m < mdim; ++m) {
+            errimp[m] = errimp[m] / *nTree;
+            impSD[m] = sqrt( ((impSD[m] / *nTree) -
+                    (errimp[m] * errimp[m])) / *nTree );
+            if (localImp) {
+                for (n = 0; n < nsample; ++n) {
+                    impmat[m + n * mdim] /= nout[n];
                 }
             }
         }
-        
-        if (doProx) {
-            for (n = 0; n < nsample; ++n) {
-                for (k = n + 1; k < nsample; ++k) {
-                    prox[nsample*k + n] /= oobprox ?
-                        (oobpair[nsample*k + n] > 0 ? oobpair[nsample*k + n] : 1) :
-                            *nTree;
-                            prox[nsample * n + k] = prox[nsample * k + n];
-                }
-                prox[nsample * n + n] = 1.0;
-            }
-            if (testdat) {
-                for (n = 0; n < ntest; ++n)
-                    for (k = 0; k < ntest + nsample; ++k)
-                        proxts[ntest*k + n] /= *nTree;
-            }
-        }
-        
-        if (varImp) {
-            for (m = 0; m < mdim; ++m) {
-                errimp[m] = errimp[m] / *nTree;
-                impSD[m] = sqrt( ((impSD[m] / *nTree) -
-                        (errimp[m] * errimp[m])) / *nTree );
-                if (localImp) {
-                    for (n = 0; n < nsample; ++n) {
-                        impmat[m + n * mdim] /= nout[n];
-                    }
-                }
-            }
-        }
-        for (m = 0; m < mdim; ++m) tgini[m] /= *nTree;
-        
-        
-        //addition by abhi
-        //in order to release the space stored by the variable in findBestSplit
-        // call by setting
-        in_findBestSplit=-99;
-        findBestSplit(&tmp_d, &tmp_i, &tmp_d, tmp_i, tmp_i,
-                tmp_i, tmp_i, &tmp_i, &tmp_d,
-                &tmp_d, &tmp_i, &tmp_i, tmp_i,
-                tmp_d, tmp_i, &tmp_i);
-        
-        //do the same freeing of space by calling with -99
-        in_regTree=-99;
-        regTree(&tmp_d, &tmp_d, tmp_i, tmp_i, &tmp_i,
-                &tmp_i,
-                &tmp_d, &tmp_d, &tmp_c, tmp_i,
-                &tmp_i, tmp_i, tmp_i, &tmp_i, &tmp_i,
-                &tmp_d, &tmp_i);
-	
-	
-	free(yb);
-        free(xb);
-	free(ytr);
-	free(xtmp);
-	free(resOOB);
-        free(in);
-	free(nodex);
-	free(varUsed);
+    }
+    for (m = 0; m < mdim; ++m) tgini[m] /= *nTree;
+    
+    
+    //addition by abhi
+    //in order to release the space stored by the variable in findBestSplit
+    // call by setting
+    in_findBestSplit=-99;
+    findBestSplit(&tmp_d, &tmp_i, &tmp_d, tmp_i, tmp_i,
+            tmp_i, tmp_i, &tmp_i, &tmp_d,
+            &tmp_d, &tmp_i, &tmp_i, tmp_i,
+            tmp_d, tmp_i, &tmp_i);
+    
+    //do the same mxFreeing of space by calling with -99
+    in_regTree=-99;
+    regTree(&tmp_d, &tmp_d, tmp_i, tmp_i, &tmp_i,
+            &tmp_i,
+            &tmp_d, &tmp_d, &tmp_c, tmp_i,
+            &tmp_i, tmp_i, tmp_i, &tmp_i, &tmp_i,
+            &tmp_d, &tmp_i);
+    
+    
+    mxFree(yb);
+    mxFree(xb);
+    mxFree(ytr);
+    mxFree(xtmp);
+    mxFree(resOOB);
+    mxFree(in);
+    mxFree(nodex);
+    mxFree(varUsed);
     if (!(*replace)  )
-        free(nind);
+        mxFree(nind);
     
     if (testdat) {
-		free(ytree);
-		free(nodexts);
-	}
-	
-	if (doProx && oobprox)
-		free(oobpair) ;
+        mxFree(ytree);
+        mxFree(nodexts);
+    }
+    
+    if (doProx && oobprox)
+        mxFree(oobpair) ;
 }
 
 /*----------------------------------------------------------------------*/
@@ -649,7 +648,7 @@ void regForest(double *x, double *ypred, int *mdim, int *n,
     double *ytree;
     
     junk = NULL;
-    ytree = (double *) calloc(*n, sizeof(double));
+    ytree = (double *) mxCalloc(*n, sizeof(double));
     if (*nodes) {
         zeroInt(nodex, *n * *ntree);
     } else {
@@ -686,7 +685,7 @@ void regForest(double *x, double *ypred, int *mdim, int *n,
             proxMat[i + i * *n] = 1.0;
         }
     }
-    free(ytree);
+    mxFree(ytree);
 }
 
 void simpleLinReg(int nsample, double *x, double *y, double *coef,
@@ -743,18 +742,18 @@ void regTree(double *x, double *y, int mdim, int nsample, int *lDaughter,
     double d, ss, av, decsplit, ubest, sumnode;
     
     if (in_regTree==-99){
-        free(nodestart);
-        free(jdex);
-        free(nodepop);
+        mxFree(nodestart);
+        mxFree(jdex);
+        mxFree(nodepop);
 //	printf("giving up mem in in_regTree\n");
         return;
     }
     
     if (in_regTree==0){
         in_regTree=1;
-        nodestart = (int *) calloc(nrnodes, sizeof(int));
-        nodepop   = (int *) calloc(nrnodes, sizeof(int));
-        jdex = (int *) calloc(nsample, sizeof(int));
+        nodestart = (int *) mxCalloc(nrnodes, sizeof(int));
+        nodepop   = (int *) mxCalloc(nrnodes, sizeof(int));
+        jdex = (int *) mxCalloc(nsample, sizeof(int));
     }
     
     /* initialize some arrays for the tree */
@@ -876,25 +875,25 @@ void findBestSplit(double *x, int *jdex, double *y, int mdim, int nsample,
     
     
     if (in_findBestSplit==-99){
-      free(ncase);
-      free(mind); //had to remove this so that it wont crash for when mdim=0, strangely happened for replace=0
-      free(v);
-      free(yl);
-      free(xt);
-      free(ut);
+      mxFree(ncase);
+      mxFree(mind); //had to remove this so that it wont crash for when mdim=0, strangely happened for replace=0
+      mxFree(v);
+      mxFree(yl);
+      mxFree(xt);
+      mxFree(ut);
      //	printf("giving up mem in findBestSplit\n");
       return;
     }			
     
     if (in_findBestSplit==0){
     	in_findBestSplit=1;
-		ut = (double *) calloc(nsample, sizeof(double));
-		xt = (double *) calloc(nsample, sizeof(double));
-		v  = (double *) calloc(nsample, sizeof(double));
-		yl = (double *) calloc(nsample, sizeof(double));
-		mind  = (int *) calloc(mdim+1, sizeof(int));   //seems that the sometimes i am asking for kv[10] and that causes problesmms
+		ut = (double *) mxCalloc(nsample, sizeof(double));
+		xt = (double *) mxCalloc(nsample, sizeof(double));
+		v  = (double *) mxCalloc(nsample, sizeof(double));
+		yl = (double *) mxCalloc(nsample, sizeof(double));
+		mind  = (int *) mxCalloc(mdim+1, sizeof(int));   //seems that the sometimes i am asking for kv[10] and that causes problesmms
 													   //so allocate 1 more. helps with not crashing in windows
-		ncase = (int *) calloc(nsample, sizeof(int));
+		ncase = (int *) mxCalloc(nsample, sizeof(int));
     }
     zeroDouble(ut, nsample);
     zeroDouble(xt, nsample);
@@ -1039,7 +1038,7 @@ void predictRegTree(double *x, int nsample, int mdim,
     
     /* decode the categorical splits */
     if (maxcat > 1) {
-        cbestsplit = (int *) calloc(maxcat * treeSize, sizeof(int));
+        cbestsplit = (int *) mxCalloc(maxcat * treeSize, sizeof(int));
         zeroInt(cbestsplit, maxcat * treeSize);
         for (i = 0; i < treeSize; ++i) {
             if (nodestatus[i] != NODE_TERMINAL && cat[splitVar[i] - 1] > 1) {
@@ -1069,7 +1068,7 @@ void predictRegTree(double *x, int nsample, int mdim,
         ypred[i] = nodepred[k];
         nodex[i] = k + 1;
     }
-    if (maxcat > 1) free(cbestsplit);
+    if (maxcat > 1) mxFree(cbestsplit);
 }
 
 

@@ -83,7 +83,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	double* ypred = (double*)mxGetData(plhs[0]);
 	
 	int mdim = p_size;
-	int *cat; cat = (int*) calloc(p_size, sizeof(int)); for ( i=0;i<p_size;i++) cat[i] = 1;
+	int *cat; cat = (int*) mxCalloc(p_size, sizeof(int)); for ( i=0;i<p_size;i++) cat[i] = 1;
 	int maxcat =1;
 	int keepPred=(int)*((double*)mxGetData(prhs[10]));
 	double* allPred;
@@ -110,7 +110,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	int doProx=0;
 	double proxMat=0;
 	int nodes=0;
-	int *nodex; nodex=(int*)calloc(n_size,sizeof(int));
+	int *nodex; nodex=(int*)mxCalloc(n_size,sizeof(int));
 	
     if (DEBUG_ON){
         printf("predict: val's of first example: ");
@@ -127,8 +127,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                &proxMat, &nodes, nodex);
     
     //free the allocations
-    free(cat);
-    free(nodex);
+    mxFree(cat);
+    mxFree(nodex);
     return;
 }
 #endif

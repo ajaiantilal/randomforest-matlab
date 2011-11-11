@@ -1,5 +1,5 @@
 #include <math.h>
-#include <memory.h>
+#include "memory.h"
 #include "mex.h"
 
 #define DEBUG_ON 0
@@ -213,7 +213,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         nts = (int)mxGetScalar(prhs[21]);
         plhs[19] = mxCreateNumericMatrix(nts, 1, mxINT32_CLASS, mxREAL);
         outclts = (int*)mxGetData(plhs[19]);
-        countts = (double*) calloc(nclass * nts,sizeof(double));
+        countts = (double*) mxCalloc(nclass * nts,sizeof(double));
         if (proximity){
             plhs[20] = mxCreateNumericMatrix(nts, nts + n_size, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
@@ -232,7 +232,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         nts = 1;
         plhs[19] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
         outclts = (int*)mxGetData(plhs[19]);
-        countts = (double*) calloc(nclass * nts,sizeof(double));
+        countts = (double*) mxCalloc(nclass * nts,sizeof(double));
         if (proximity){
             plhs[20] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
             proxts = (double*) mxGetData(plhs[20]); //calloc(nsample*nsample,sizeof(double));
@@ -259,7 +259,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
          proxts, errts,inbag,print_verbose_tree_progression);
     
             
-    
+    mxFree(countts);
     
     //free(outcl);
     //free(counttr);

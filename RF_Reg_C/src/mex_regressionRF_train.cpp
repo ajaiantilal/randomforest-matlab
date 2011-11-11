@@ -239,14 +239,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int labelts=1;
     
     //double yTestPred[nts];
-    double *yTestPred; yTestPred = (double*)calloc(nts, sizeof(double));
+    double *yTestPred; yTestPred = (double*)mxCalloc(nts, sizeof(double));
     double proxts[]={1};
     
     double *msets;
     if (labelts==1){
-        msets=(double*)calloc(ntree, sizeof(double));
+        msets=(double*)mxCalloc(ntree, sizeof(double));
     }else{
-        msets=(double*)calloc(ntree, sizeof(double));
+        msets=(double*)mxCalloc(ntree, sizeof(double));
         msets[0]=1;
     }
     
@@ -344,8 +344,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //free(inbag);
     
     
-    //free(yTestPred);
-    //free(msets);
+    mxFree(yTestPred);
+    mxFree(msets);
     
     return;
 }
