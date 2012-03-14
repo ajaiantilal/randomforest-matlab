@@ -17,7 +17,7 @@ SRC=src/
 CC=g++
 
 # debug CFLAGS
-CFLAGS=-g -fPIC -pg -O2 -lm -Wall
+CFLAGS= -fPIC -pg -O2 -lm -Wall
 
 # optimized CFLAGS
 #CFLAGS=-msse3 -O3 -fPIC -funroll-loops -march=native -Wall -pg
@@ -38,12 +38,12 @@ cokus_test:$(SRC)cokus.cpp $(SRC)cokus_test.cpp
  
 diabetes:
 	echo -e  'Compiling diabetes test case'
-	g++  $(SRC)cokus.cpp $(SRC)reg_RF.cpp $(SRC)diabetes_C_wrapper.cpp $(CFLAGS) -o diabetes_test 
+	g++  $(SRC)cokus.cpp $(SRC)reg_RF.cpp $(SRC)diabetes_C_wrapper.cpp $(CFLAGS) -o diabetes_test -O -DmxCalloc=calloc -DmxFree=free
 
 mex:	clean 
 	echo -e 'Making mex'
-	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_train.cpp $(SRC)reg_RF.cpp -o mexRF_train -DMATLAB 
-	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(SRC)reg_RF.cpp -o mexRF_predict -DMATLAB 
+	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_train.cpp $(SRC)reg_RF.cpp -o mexRF_train -DMATLAB  -O
+	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(SRC)reg_RF.cpp -o mexRF_predict -DMATLAB -O 
 #mex mex_regressionRF_train.c reg_RF.o -o mexRF_train -DMATLAB $(ICC_LDFLAGS)
 
 reg_RF:
