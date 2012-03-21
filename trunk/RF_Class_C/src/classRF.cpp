@@ -201,6 +201,7 @@ void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
     double *tgini, *tx, *wl, *classpop, *tclasscat, *tclasspop, *win,
             *tp, *wr;
     
+    srand(time(NULL));
     //Do initialization for COKUS's Random generator
     seedMT(2*rand()+1);  //works well with odd number so why don't use that
     
