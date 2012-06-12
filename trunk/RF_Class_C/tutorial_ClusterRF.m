@@ -29,8 +29,6 @@ Y = outputs;
 X_new = X;
 Y_new = []; %lose labels for Y before sending it to the program
 
-
-
 extra_options.do_trace = 1; %(Default = 0)
 model = classRF_train(X_new,Y_new,100,0,extra_options);
 
