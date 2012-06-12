@@ -215,6 +215,12 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         Y_new = [ones(N,1); ones(N,1)*2];
         Y = Y_new;
         X = [X; X];
+        % no need to do the below as
+%         [N D] = size(X);
+%         n_size = N;
+%         p_size = D;
+%         n_size
+%         p_size
         %error('have to fill stuff here')
     end
     

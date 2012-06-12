@@ -33,8 +33,6 @@ Y_trn = Y(randvector(1:250));
 X_tst = X(randvector(251:end),:);
 Y_tst = Y(randvector(251:end));
 
-
- 
 % example 1:  simply use with the defaults
     model = classRF_train(X_trn,Y_trn);
     Y_hat = classRF_predict(X_tst,model);

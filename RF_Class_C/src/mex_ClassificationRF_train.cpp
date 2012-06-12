@@ -134,8 +134,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double* impSD;
     
     if (localImp){
-        plhs[14] = mxCreateNumericMatrix(n_size, p_size, mxDOUBLE_CLASS, mxREAL);
-        impmat = (double*) mxGetData(plhs[14]); //calloc(n_size*p_size,sizeof(double));
+        if (addclass) {
+            plhs[14] = mxCreateNumericMatrix(n_size * 2, p_size, mxDOUBLE_CLASS, mxREAL);
+            impmat = (double*) mxGetData(plhs[14]); //calloc(n_size*p_size,sizeof(double));
+        } else {
+            plhs[14] = mxCreateNumericMatrix(n_size, p_size, mxDOUBLE_CLASS, mxREAL);
+            impmat = (double*) mxGetData(plhs[14]); //calloc(n_size*p_size,sizeof(double));
+        }
     }else{
         plhs[14] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
         impmat = (double*) mxGetData(plhs[14]); //calloc(1,sizeof(double));
