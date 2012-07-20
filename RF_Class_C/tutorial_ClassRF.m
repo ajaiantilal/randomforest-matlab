@@ -245,3 +245,8 @@ Y_tst = Y(randvector(251:end));
     Y_hat = classRF_predict(X_tst,model);
     fprintf('\nexample 19: error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
     
+% example 20: get the nodes for test examples
+%   terminal node indicators (ntest by ntree matrix)
+    clear extra_options
+    extra_options.nodes = 1;
+    [Y_hat, tmp, tmp, tmp, nodes] = classRF_predict(X_tst,model,extra_options);

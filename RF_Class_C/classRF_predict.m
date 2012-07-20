@@ -23,11 +23,13 @@
 %           If predict.all=TRUE, then the individual component of the returned object is a character
 %           matrix where each column contains the predicted class by a tree in the forest.
 % proximity_ts - proximity of training to the test set
+% nodes - Should the terminal node indicators (an n by ntree matrix) be return? If so, it is
+%         in the “nodes” attribute of the returned object.
 % 
 % Not yet implemented
 % proximity
 
-function [Y_new, votes, prediction_per_tree,proximity_ts] = classRF_predict(X,model, extra_options)
+function [Y_new, votes, prediction_per_tree,proximity_ts,nodes] = classRF_predict(X,model, extra_options)
     
     if nargin<2
 		error('need atleast 2 parameters,X matrix and model');
@@ -40,14 +42,18 @@ function [Y_new, votes, prediction_per_tree,proximity_ts] = classRF_predict(X,mo
         if isfield(extra_options,'proximity') 
             proximity = extra_options.proximity;
         end
+        if isfield(extra_options,'nodes') 
+            nodes = extra_options.nodes;
+        end
     end
     
     if ~exist('predict_all','var'); predict_all=0;end
             
     if ~exist('proximity','var'); proximity=0;end
         
+    if ~exist('nodes','var'); nodes=0;end
     
-	[Y_hat,prediction_per_tree,votes,proximity_ts] = mexClassRF_predict(X',model.nrnodes,model.ntree,model.xbestsplit,model.classwt,model.cutoff,model.treemap,model.nodestatus,model.nodeclass,model.bestvar,model.ndbigtree,model.nclass, predict_all, proximity);
+	[Y_hat,prediction_per_tree,votes,proximity_ts,nodes] = mexClassRF_predict(X',model.nrnodes,model.ntree,model.xbestsplit,model.classwt,model.cutoff,model.treemap,model.nodestatus,model.nodeclass,model.bestvar,model.ndbigtree,model.nclass, predict_all, proximity, nodes);
 	%keyboard
     votes = votes';
     

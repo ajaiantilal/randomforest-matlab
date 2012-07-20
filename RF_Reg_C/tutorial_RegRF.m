@@ -251,5 +251,8 @@ Y_tst = Y(randvector(401:end));
     Y_hat = regRF_predict(X_tst,model);
     fprintf('\nexample 18: MSE rate %f\n',   sum((Y_hat-Y_tst).^2));    
 
-clear extra_options
-        
+% example 19: get the nodes for test examples
+%   terminal node indicators (ntest by ntree matrix)
+    clear extra_options
+    extra_options.nodes = 1;
+    [Y_hat, tmp, nodes] = regRF_predict(X_tst,model,extra_options);
