@@ -59,9 +59,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         
 {
 	int i;
-	if (nrhs!=11)
-		mexErrMsgIdAndTxt("mex_regressionRF_predict",
-                "I am stupid, I need 9 parameters");
 	
 	int p_size = mxGetM(prhs[0]);
 	int n_size = mxGetN(prhs[0]);
@@ -109,8 +106,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
 	int doProx=0;
 	double proxMat=0;
-	int nodes=0;
-	int *nodex; nodex=(int*)mxCalloc(n_size,sizeof(int));
+	
+    int nodes=(int)mxGetScalar(prhs[11]);;
+    int* nodex;
+    if (nodes) {
+        dims_ntest[0] = ntest;
+        dims_ntest[1] = ntree;
+        plhs[2] = mxCreateNumericArray(ndim, dims_ntest, mxINT32_CLASS, mxREAL);
+        nodex = (int*)mxGetData(plhs[2]);
+        //nodexts = (int*)mxCalloc(ntest*ntree,sizeof(int));
+    } else {
+        dims_ntest[0] = ntest;
+        dims_ntest[1] = 1;
+        plhs[2] = mxCreateNumericArray(ndim, dims_ntest, mxINT32_CLASS, mxREAL);
+        nodex = (int*)mxGetData(plhs[2]);
+        //nodexts = (int*)mxCalloc(ntest,sizeof(int));
+    }
 	
     if (DEBUG_ON){
         printf("predict: val's of first example: ");
@@ -128,7 +139,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     //free the allocations
     mxFree(cat);
-    mxFree(nodex);
+    //mxFree(nodex);
     return;
 }
 #endif

@@ -78,17 +78,28 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int* jts; 
     int* jet;
     int keepPred=(int)mxGetScalar(prhs[12]);
-    int nodes=0;
+    int nodes=(int)mxGetScalar(prhs[14]);;
     int* nodexts;
-    if (nodes)
-        nodexts = (int*)mxCalloc(ntest*ntree,sizeof(int));
-    else
-        nodexts = (int*)mxCalloc(ntest,sizeof(int));
     
-    double *proxMat;
     int ndim=2;
     int dims_ntest[]={1,1};
     
+    if (nodes) {
+        dims_ntest[0] = ntest;
+        dims_ntest[1] = ntree;
+        plhs[4] = mxCreateNumericArray(ndim, dims_ntest, mxINT32_CLASS, mxREAL);
+        nodexts = (int*)mxGetData(plhs[4]);
+        //nodexts = (int*)mxCalloc(ntest*ntree,sizeof(int));
+    } else {
+        dims_ntest[0] = ntest;
+        dims_ntest[1] = 1;
+        plhs[4] = mxCreateNumericArray(ndim, dims_ntest, mxINT32_CLASS, mxREAL);
+        nodexts = (int*)mxGetData(plhs[4]);
+        //nodexts = (int*)mxCalloc(ntest,sizeof(int));
+    }
+    
+    double *proxMat;
+        
     if(proximity){
         //proxMat = (double*)mxCalloc(ntest*ntest,sizeof(double));
         dims_ntest[0] = ntest;
@@ -167,6 +178,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     fflush(stdout);
     
     mxFree(cat);
-    mxFree(nodexts);
+    //mxFree(nodexts);
     //free(proxMat);    
 }

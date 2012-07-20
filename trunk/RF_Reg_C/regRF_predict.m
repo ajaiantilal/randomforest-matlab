@@ -9,7 +9,7 @@
 % This does prediction given the data and the model file
 %**************************************************************
 
-function [Y_hat,prediction_per_tree] = regRF_predict(X,model,extra_options)
+function [Y_hat,prediction_per_tree, nodes] = regRF_predict(X,model,extra_options)
     %function Y_hat = regRF_predict(X,model)
     %requires 2 arguments
     %X: data matrix
@@ -21,14 +21,19 @@ function [Y_hat,prediction_per_tree] = regRF_predict(X,model,extra_options)
         if isfield(extra_options,'predict_all') 
             predict_all = extra_options.predict_all;
         end
+        if isfield(extra_options,'nodes') 
+            nodes = extra_options.nodes;
+        end
     end
     
     if ~exist('predict_all','var'); predict_all=0;end
-            
     
-	[Y_hat,prediction_per_tree] = mexRF_predict(X',model.lDau,model.rDau,model.nodestatus,model.nrnodes,model.upper,model.avnode,model.mbest,model.ndtree,model.ntree,predict_all);
+    if ~exist('nodes','var'); nodes=0;end
+    
+	[Y_hat,prediction_per_tree, nodes] = mexRF_predict(X',model.lDau,model.rDau,model.nodestatus,model.nrnodes,model.upper,model.avnode,model.mbest,model.ndtree,model.ntree,predict_all, nodes);
     
     if ~isempty(find(model.coef)) %for bias corr
         Y_hat = model.coef(1) + model.coef(2)*Y_hat;
     end
 	clear mexRF_predict
+    
