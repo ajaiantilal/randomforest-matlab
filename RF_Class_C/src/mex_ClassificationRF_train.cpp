@@ -165,7 +165,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (DEBUG_ON) { mexPrintf("\nnrnodes=%d, nsum=%d, nodesize=%d, mtry=%d\n",nrnodes,nsum,nodesize,mtry);}
     
     //int* ndbigtree = (int*) calloc(ntree,sizeof(int)); 
-    plhs[9] = mxCreateNumericMatrix(nrnodes, nt, mxINT32_CLASS, mxREAL);
+    plhs[9] = mxCreateNumericMatrix(1, nt, mxINT32_CLASS, mxREAL);
     int *ndbigtree = (int*) mxGetData(plhs[9]);
     
     //int* nodestatus = (int*) calloc(nt*nrnodes,sizeof(int));

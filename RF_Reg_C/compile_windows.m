@@ -12,9 +12,13 @@ function compile_windows
 %need to do tricks for making Makfile run on windows as one needs cygwin.
 %so instead use mex to compile everything up.
 
-system('del *.mexw32;');
+if strcmp(computer,'PCWIN64')
+    system('del *.mexw64;');
+elseif strcmp(computer,'PCWIN')
+    system('del *.mexw32;');
+end
 
-mex src/cokus.cpp src/reg_RF.cpp src/mex_regressionRF_train.cpp   -DMATLAB -output mexRF_train
-mex src/cokus.cpp src/reg_RF.cpp src/mex_regressionRF_predict.cpp   -DMATLAB  -output mexRF_predict
+mex -O src/cokus.cpp src/reg_RF.cpp src/mex_regressionRF_train.cpp   -DMATLAB -output mexRF_train
+mex -O src/cokus.cpp src/reg_RF.cpp src/mex_regressionRF_predict.cpp   -DMATLAB  -output mexRF_predict
 
 fprintf('\n Mex`s compiled correctly\n')

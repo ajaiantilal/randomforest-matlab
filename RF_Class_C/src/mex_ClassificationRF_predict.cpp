@@ -25,10 +25,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     int nclass =  (int)mxGetScalar(prhs[11]);
     
-    int* cat = (int*)mxCalloc(p_size,sizeof(int));
-    for(i=0;i<p_size;i++) cat[i]=1;
+    int* cat = (int*)mxGetData(prhs[15]);
+    //int* cat = (int*)mxCalloc(p_size,sizeof(int));
+    //for(i=0;i<p_size;i++) cat[i]=1;
     
-    int maxcat=1;
+    int maxcat=(int)mxGetScalar(prhs[16]);;
     int sampsize=n_size;
     int nsum = sampsize;
     int strata = 1;
@@ -177,7 +178,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     fflush(stdout);
     
-    mxFree(cat);
+    //mxFree(cat);
     //mxFree(nodexts);
     //free(proxMat);    
 }

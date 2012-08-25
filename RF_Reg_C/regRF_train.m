@@ -50,6 +50,8 @@
 %  extra_options.nPerm = Number of times the OOB data are permuted per tree for assessing variable
 %                   importance. Number larger than 1 gives slightly more stable estimate, but not
 %                   very effective. Currently only implemented for regression.
+%  extra_options.categorical_feature a 1xD true/false vector to say which features are categorical (true), which are numeric (false)
+%                   maximum of 32 categories per feature is permitted
 %
 %
 %___Returns model which has
@@ -178,8 +180,27 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
     %enhanced. In this i ask the user to specify the column/features to
     %consider as categories, 1 if all the values are real values else
     %specify the number of categories here
-    if exist ('extra_options','var') && isfield(extra_options,'categories')
-        ncat = extra_options.categories;      
+    orig_uniques_in_feature = cell(1,D);
+    mapped_uniques_in_feature = cell(1,D);    
+    if exist ('extra_options','var') && isfield(extra_options,'categorical_feature')
+        ncat = ones(1,D);        
+        for i=1:D
+            if extra_options.categorical_feature(i) 
+                orig_uniques_in_feature{i} = sort(unique(X(:,i)));
+                tmp_uniques_in_feature = orig_uniques_in_feature{i};
+                mapped_uniques_in_feature{i} = 1:length(tmp_uniques_in_feature);
+                tmp_mapped_uniques_in_feature = mapped_uniques_in_feature{i};
+                X_loc = X(:,i); %cannot change the original array which may cause chained change of categories to something totally wrong
+                for j=1:length(tmp_uniques_in_feature)
+                    indices_to_change = find( X(:,i) == tmp_uniques_in_feature(j) );
+                    X_loc(indices_to_change) = tmp_mapped_uniques_in_feature(j);
+                end
+                X(:,i) = X_loc;
+                ncat(i) = length(tmp_uniques_in_feature);
+            else
+                ncat(i) = 1;
+            end
+        end
     else
         ncat = ones(1,D);
     end
@@ -288,7 +309,13 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
         = mexRF_train (X',Y,ntree,mtry,sampsize,nodesize,...
                        int32(Options),int32(ncat),int32(maxcat),int32(do_trace), int32(proximity), int32(oob_prox), ...
                        int32(corr_bias), keep_inbag, replace,int32(print_verbose_tree_progression));
-    
+    if maxcat ~= 1 % maxcat = 1: no categorical features exist so we dont have to save anything
+        model.orig_uniques_in_feature = orig_uniques_in_feature;
+        model.mapped_uniques_in_feature = mapped_uniques_in_feature;
+        model.ncat = ncat;
+        model.categorical_feature =  extra_options.categorical_feature;
+	end
+
     %done in R file so doing it too.
     ypred(oob_times==0)=NaN;
 	
