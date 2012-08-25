@@ -2,6 +2,7 @@
 % Options copied from http://cran.r-project.org/web/packages/randomForest/randomForest.pdf
 
 %run plethora of tests
+clear extra_options
 clc
 close all
 
@@ -250,3 +251,43 @@ Y_tst = Y(randvector(251:end));
     clear extra_options
     extra_options.nodes = 1;
     [Y_hat, tmp, tmp, tmp, nodes] = classRF_predict(X_tst,model,extra_options);
+    fprintf('\nexample 20: node information now in node variable\n');
+
+% example 21: using categories
+    fprintf('\nexample 21: example of using categories\n');
+    load data/twonorm
+    X = inputs';
+    Y = outputs;
+
+    default_scale = 8; %X values will be scaled between 0-(default_scale-1)
+    for i=1:size(X,2)
+        min_0_X = double(X(:,i) - min(X(:,i))); % minimum value will be now 0.
+        X_i_between_0_1 = min_0_X/max(min_0_X); %now the range will be 0-1
+        X_i_between_0_scale_2_to_n = round(X_i_between_0_1 * (default_scale-1));
+        X(:,i) = X_i_between_0_scale_2_to_n;
+    end
+    % X is fully categorized and ranges from values 0:7
+
+    % construct the category information for X
+    % .categories is a 1 x D vector saying what features are categorical and what are not categorical
+    % true = categorical, false = numeric
+
+    extra_options.categorical_feature = ones(1,size(X,2)); % all features are categorical
+
+    % to choose features 1:5 as non-categorcal, use below code
+    % extra_options.categorical_feature(1:5) = false; 
+
+    % without categories
+    model=classRF_train(X,Y, 500, 3);
+    y_hat = classRF_predict(X, model);
+    err_without_categories = length(find(y_hat~=Y))/length(Y)
+    avg_size_of_trees = mean(model.ndbigtree)
+
+    % with categories
+    model=classRF_train(X,Y, 500, 3, extra_options);
+    y_hat = classRF_predict(X, model);
+    err_with_categories = length(find(y_hat~=Y))/length(Y)
+    avg_size_of_trees = mean(model.ndbigtree)
+
+    fprintf('\terror with/without categories should be similar, categorical trees might be smaller than numerical trees\n')
+    

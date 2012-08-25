@@ -59,6 +59,8 @@
 %                   do_trace trees.
 %  extra_options.keep_inbag Should an n by ntree matrix be returned that keeps track of which samples are
 %                   'in-bag' in which trees (but not how many times, if sampling with replacement)
+%  extra_options.categorical_feature a 1xD true/false vector to say which features are categorical (true), which are numeric (false)
+%                   maximum of 32 categories per feature is permitted
 %
 % Options eliminated
 % corr_bias which happens only for regression ommitted
@@ -231,8 +233,27 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     %enhanced. In this i ask the user to specify the column/features to
     %consider as categories, 1 if all the values are real values else
     %specify the number of categories here
-    if exist ('extra_options','var') && isfield(extra_options,'categories')
-        ncat = extra_options.categories;      
+    orig_uniques_in_feature = cell(1,D);
+    mapped_uniques_in_feature = cell(1,D);    
+    if exist ('extra_options','var') && isfield(extra_options,'categorical_feature')
+        ncat = ones(1,D);        
+        for i=1:D
+            if extra_options.categorical_feature(i) 
+                orig_uniques_in_feature{i} = sort(unique(X(:,i)));
+                tmp_uniques_in_feature = orig_uniques_in_feature{i};
+                mapped_uniques_in_feature{i} = 1:length(tmp_uniques_in_feature);
+                tmp_mapped_uniques_in_feature = mapped_uniques_in_feature{i};
+                X_loc = X(:,i); %cannot change the original array which may cause chained change of categories to something totally wrong
+                for j=1:length(tmp_uniques_in_feature)
+                    indices_to_change = find( X(:,i) == tmp_uniques_in_feature(j) );
+                    X_loc(indices_to_change) = tmp_mapped_uniques_in_feature(j);
+                end
+                X(:,i) = X_loc;
+                ncat(i) = length(tmp_uniques_in_feature);
+            else
+                ncat(i) = 1;
+            end
+        end
     else
         ncat = ones(1,D);
     end
@@ -383,6 +404,13 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
                            int32(maxcat), int32(sampsize), strata, Options, int32(ipi), ...
                            classwt, cutoff, int32(nodesize),int32(nsum), int32(n_size), int32(p_size), int32(nsample),...
                            int32(tst_available), Xtst',int32(Ytst),int32(tst_size), int32(print_verbose_tree_progression));
+                       
+    if maxcat ~= 1 % maxcat = 1: no categorical features exist so we dont have to save anything
+        model.orig_uniques_in_feature = orig_uniques_in_feature;
+        model.mapped_uniques_in_feature = mapped_uniques_in_feature;    
+        model.ncat = ncat;
+        model.categorical_feature =  extra_options.categorical_feature;    
+    end
  	model.nrnodes=nrnodes;
  	model.ntree=ntree;
  	model.xbestsplit=xbestsplit;

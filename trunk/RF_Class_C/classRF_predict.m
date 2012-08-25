@@ -53,7 +53,27 @@ function [Y_new, votes, prediction_per_tree,proximity_ts,nodes] = classRF_predic
         
     if ~exist('nodes','var'); nodes=0;end
     
-	[Y_hat,prediction_per_tree,votes,proximity_ts,nodes] = mexClassRF_predict(X',model.nrnodes,model.ntree,model.xbestsplit,model.classwt,model.cutoff,model.treemap,model.nodestatus,model.nodeclass,model.bestvar,model.ndbigtree,model.nclass, predict_all, proximity, nodes);
+    if isfield(model, 'categorical_feature')
+        % have to map prediction array to the correct categories
+        for i=1:size(X,2)
+            if model.categorical_feature(i) 
+                tmp_uniques_in_feature = model.orig_uniques_in_feature{i};
+                tmp_mapped_uniques_in_feature = model.mapped_uniques_in_feature{i};
+                X_loc = X(:,i); %cannot change the original array which may cause chained change of categories to something totally wrong
+                for j=1:length(tmp_uniques_in_feature)
+                    indices_to_change = find( X(:,i) == tmp_uniques_in_feature(j) );
+                    X_loc(indices_to_change) = tmp_mapped_uniques_in_feature(j);
+                end
+                X(:,i) = X_loc;
+            end
+        end
+        ncat = model.ncat;
+    else
+        ncat = ones(1,size(X,2));
+    end    
+    
+    maxcat = max(ncat);
+	[Y_hat,prediction_per_tree,votes,proximity_ts,nodes] = mexClassRF_predict(X',model.nrnodes,model.ntree,model.xbestsplit,model.classwt,model.cutoff,model.treemap,model.nodestatus,model.nodeclass,model.bestvar,model.ndbigtree,model.nclass, predict_all, proximity, nodes, int32(ncat), maxcat );
 	%keyboard
     votes = votes';
     

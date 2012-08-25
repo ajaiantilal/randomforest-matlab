@@ -80,9 +80,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	double* ypred = (double*)mxGetData(plhs[0]);
 	
 	int mdim = p_size;
-	int *cat; cat = (int*) mxCalloc(p_size, sizeof(int)); for ( i=0;i<p_size;i++) cat[i] = 1;
-	int maxcat =1;
-	int keepPred=(int)*((double*)mxGetData(prhs[10]));
+	//int *cat; cat = (int*) mxCalloc(p_size, sizeof(int)); for ( i=0;i<p_size;i++) cat[i] = 1;
+    int *cat = (int*) mxGetData(prhs[12]);
+    //int maxcat =1;
+	int maxcat=(int)(mxGetScalar(prhs[13]));
+    int keepPred=(int)*((double*)mxGetData(prhs[10]));
 	double* allPred;
     
     int dims_ntest[2];
@@ -138,7 +140,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                &proxMat, &nodes, nodex);
     
     //free the allocations
-    mxFree(cat);
+    //mxFree(cat);
     //mxFree(nodex);
     return;
 }
