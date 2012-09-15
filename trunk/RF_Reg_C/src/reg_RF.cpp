@@ -181,7 +181,7 @@ void permuteOOB(int m, double *x, int *in, int nsample, int mdim) {
     /* Permute tp */
     last = nOOB;
     for (i = 0; i < nOOB; ++i) {
-        k = (int) last * unif_rand();
+        k = (int) (last * unif_rand());
         tmp = tp[last - 1];
         tp[last - 1] = tp[k];
         tp[k] = tmp;

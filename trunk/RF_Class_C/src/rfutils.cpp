@@ -38,7 +38,7 @@ void createClass(double *x, int realN, int totalN, int mdim) {
     int i, j, k;
     for (i = realN; i < totalN; ++i) {
         for (j = 0; j < mdim; ++j) {
-            k = (int) unif_rand() * realN;
+            k = (int) (unif_rand() * realN);
             x[j + i * mdim] = x[j + k * mdim];
         }
     }
@@ -208,7 +208,7 @@ void permuteOOB(int m, double *x, int *in, int nsample, int mdim) {
     /* Permute tp */
     last = nOOB;
     for (i = 0; i < nOOB; ++i) {
-	k = (int) last * unif_rand();
+	k = (int) (last * unif_rand());
 	tmp = tp[last - 1];
 	tp[last - 1] = tp[k];
 	tp[k] = tmp;
