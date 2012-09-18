@@ -104,8 +104,8 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         tst_available=1;
         tst_size = length(Ytst);
     else
-        Xtst=1;
-        Ytst=1;
+        Xtst=X(1,:);
+        Ytst=Y(1);
         tst_available=0;
         tst_size=0;
     end
