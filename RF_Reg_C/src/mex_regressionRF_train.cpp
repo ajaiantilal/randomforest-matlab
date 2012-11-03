@@ -43,6 +43,10 @@
 #include "math.h"
 #include "reg_RF.h"
 
+#ifdef OCTAVE
+    #include "stdio.h"
+#endif
+
 #define DEBUG_ON 0
 
 void regRF(double *x, double *y, int *xdim, int *sampsize,

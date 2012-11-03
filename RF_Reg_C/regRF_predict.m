@@ -50,10 +50,12 @@ function [Y_hat,prediction_per_tree, nodes] = regRF_predict(X,model,extra_option
     end
     
     maxcat = max(ncat);
-	[Y_hat,prediction_per_tree, nodes] = mexRF_predict(X',model.lDau,model.rDau,model.nodestatus,model.nrnodes,model.upper,model.avnode,model.mbest,model.ndtree,model.ntree,predict_all, nodes, int32(ncat), maxcat );
+
+    [Y_hat,prediction_per_tree, nodes] = mexRF_predict(X',model.lDau,model.rDau,model.nodestatus,model.nrnodes,model.upper,model.avnode,model.mbest,model.ndtree,model.ntree,predict_all, nodes, int32(ncat), maxcat );
     
     if ~isempty(find(model.coef)) %for bias corr
         Y_hat = model.coef(1) + model.coef(2)*Y_hat;
     end
-	clear mexRF_predict
+    
+    %clear mexRF_predict
     
