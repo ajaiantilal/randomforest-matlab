@@ -105,7 +105,11 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         tst_size = length(Ytst);
     else
         Xtst=X(1,:);
-        Ytst=0;
+        if length(Y) > 1
+            Ytst=Y(1);
+        else
+            Ytst=1;
+        end
         tst_available=0;
         tst_size=0;
     end

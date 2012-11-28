@@ -4,6 +4,8 @@
 %run plethora of tests
 clc
 close all
+clear options
+clear extra_options
 
 %compile everything
 if strcmpi(computer,'PCWIN') |strcmpi(computer,'PCWIN64')
