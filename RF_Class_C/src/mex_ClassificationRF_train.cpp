@@ -2,10 +2,6 @@
 #include "memory.h"
 #include "mex.h"
 
-#ifdef OCTAVE
-    #include "stdio.h"
-#endif
-
 #define DEBUG_ON 0
 void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
 	     int *sampsize, int *strata, int *Options, int *ntree, int *nvar,

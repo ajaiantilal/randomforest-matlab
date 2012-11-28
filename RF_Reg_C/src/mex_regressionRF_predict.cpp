@@ -45,10 +45,6 @@
 #include "math.h"
 #include "reg_RF.h"
 
-#ifdef OCTAVE
-    #include "stdio.h"
-#endif
-
 #define DEBUG_ON 0
 
 void regForest(double *x, double *ypred, int *mdim, int *n,

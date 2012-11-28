@@ -105,7 +105,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         tst_size = length(Ytst);
     else
         Xtst=X(1,:);
-        Ytst=0;
+        Ytst=Y(1);
         tst_available=0;
         tst_size=0;
     end
@@ -146,7 +146,7 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
         if isfield(extra_options,'do_trace');  do_trace = extra_options.do_trace;       end
         %if isfield(extra_options,'corr_bias');  corr_bias = extra_options.corr_bias;       end
         if isfield(extra_options,'keep_inbag');  keep_inbag = extra_options.keep_inbag;       end
-        if isfield(extra_options,'print_verbose_tree_progression');  print_verbose_tree_progression = extra_options.print_verbose_tree_progression;       end
+		if isfield(extra_options,'print_verbose_tree_progression');  print_verbose_tree_progression = extra_options.print_verbose_tree_progression;       end
     end
     keep_forest=1; %always save the trees :)
     
@@ -176,11 +176,11 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     if ~exist('print_verbose_tree_progression','var');  print_verbose_tree_progression = FALSE; end
     
 
-    if ~exist('ntree','var') || ntree<=0
-        ntree=500;
+    if ~exist('ntree','var') | ntree<=0
+		ntree=500;
         DEFAULTS_ON=1;
     end
-    if ~exist('mtry','var') || mtry<=0 || mtry>size(X,2)
+    if ~exist('mtry','var') | mtry<=0 | mtry>size(X,2)
         mtry =floor(sqrt(size(X,2)));
     end
     
