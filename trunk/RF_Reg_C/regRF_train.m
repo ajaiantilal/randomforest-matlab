@@ -147,11 +147,11 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
     if ~exist('print_verbose_tree_progression','var');  print_verbose_tree_progression = FALSE; end
 
     
-    if ~exist('ntree','var') || ntree<=0
+    if ~exist('ntree','var') | ntree<=0
 		ntree=500;
         DEFAULTS_ON=1;
     end
-    if ~exist('mtry','var') || mtry<0 || mtry> size(X,2)
+    if ~exist('mtry','var') | mtry<0 | mtry> size(X,2)
         mtry = max(floor(size(X,2)/3),1);
         DEFAULTS_ON=1;
     end
@@ -303,15 +303,12 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
     
     
     
-%    clear mexRF_train
 	[ldau,rdau,nodestatus,nrnodes,upper,avnode,...
         mbest,ndtree,ypred,mse,impout,impmat,...
         impSD,prox,coef,oob_times,inbag]...
         = mexRF_train (X',Y,ntree,mtry,sampsize,nodesize,...
                        int32(Options),int32(ncat),int32(maxcat),int32(do_trace), int32(proximity), int32(oob_prox), ...
                        int32(corr_bias), keep_inbag, replace,int32(print_verbose_tree_progression));
-%    clear mexRF_train
-
     if maxcat ~= 1 % maxcat = 1: no categorical features exist so we dont have to save anything
         model.orig_uniques_in_feature = orig_uniques_in_feature;
         model.mapped_uniques_in_feature = mapped_uniques_in_feature;
@@ -343,4 +340,4 @@ function model=regRF_train(X,Y,ntree,mtry, extra_options)
     model.nPerm = nPerm;
     model.biasCorr = corr_bias;
     model.rsq = 1 - mse / (var(Y) * (N-1) / N);
-
+	clear mexRF_train

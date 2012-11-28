@@ -1,10 +1,6 @@
 #include <math.h>
 #include "mex.h"
 
-#ifdef OCTAVE
-#include "stdio.h"
-#endif
-
 #define DEBUG_ON 0
 void classForest(int *mdim, int *ntest, int *nclass, int *maxcat,
         int *nrnodes, int *ntree, double *x, double *xbestsplit,

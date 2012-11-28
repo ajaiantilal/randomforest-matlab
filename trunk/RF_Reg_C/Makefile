@@ -46,12 +46,6 @@ mex:	clean
 	mex $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(SRC)reg_RF.cpp -o mexRF_predict -DMATLAB -O 
 #mex mex_regressionRF_train.c reg_RF.o -o mexRF_train -DMATLAB $(ICC_LDFLAGS)
 
-octave:	clean 
-	echo -e 'Making mex'
-	mkoctfile $(SRC)cokus.cpp $(SRC)mex_regressionRF_train.cpp $(SRC)reg_RF.cpp -o mexRF_train -DMATLAB -DOCTAVE --mex
-	mkoctfile $(SRC)cokus.cpp $(SRC)mex_regressionRF_predict.cpp $(SRC)reg_RF.cpp -o mexRF_predict -DMATLAB -DOCTAVE --mex
-
-
 reg_RF:
 	$(CC) $(SRC)reg_RF.cpp -c $(CFLAGS) -o $(BUILD)reg_RF.o
 
