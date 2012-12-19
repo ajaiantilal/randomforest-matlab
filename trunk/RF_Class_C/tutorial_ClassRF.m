@@ -1,6 +1,5 @@
 % A simple tutorial file to interface with RF
 % Options copied from http://cran.r-project.org/web/packages/randomForest/randomForest.pdf
-
 %run plethora of tests
 clear extra_options
 clc
@@ -290,4 +289,25 @@ Y_tst = Y(randvector(251:end));
     avg_size_of_trees = mean(model.ndbigtree)
 
     fprintf('\terror with/without categories should be similar, categorical trees might be smaller than numerical trees\n')
+
+% example 22:  Stratified Sampling, change the sampling rate for individual classes by changing sampsize
+    clear extra_options
+    extra_options.sampsize = [10 100]; % 1 is sampled 10 times, -1 is samples 100 times
+    fprintf('\nexample 22: ');
+    model = classRF_train(X_trn,Y_trn, 100, 4, extra_options);
+    Y_hat = classRF_predict(X_tst,model);
+    fprintf('error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+    fprintf('Because we changed the sampling times for the classes, \n   +1 is sampled %d times,\n   -1 is sampled %d times \n(if the sampling was the same then sampling would have been equal)\n', round(mean(model.oob_times(find(Y_trn==1)))), round(mean(model.oob_times(find(Y_trn==-1)))) )
+    fprintf('seems like sampsize has an direct role when strata is NOT involved, the larger the sampsize the larger the probability of something being sampled\n')
     
+% example 23:  Stratified Sampling, instead of changing the sampsize variable, we use a different variable as the strata
+    clear extra_options
+    extra_options.strata = [ones(125,1); ones(125,1)*2]; %first 125 examples are in strata 1 the second 125 examples are in strata 2
+    extra_options.sampsize = [200 10]; % strata 1 is sampled 10 times, strata 2 is sampled at 100 times
+    fprintf('\nexample 23: ');
+    model = classRF_train(X_trn,Y_trn, 100, 4, extra_options);
+    Y_hat = classRF_predict(X_tst,model);
+    fprintf('error rate %f\n',   length(find(Y_hat~=Y_tst))/length(Y_tst));
+    fprintf('Because we changed the sampling times for the strata, \n   first 125 examples are sampled %d times,\n   second 125 examples are sampled %d times \n(if the sampling was the same then sampling would have been equal)\n', round(mean(model.oob_times(1:125))), round(mean(model.oob_times(126:end))) )
+    fprintf('seems like sampsize has an inverse role when strata is involved, the larger the sampsize the lesser probability of something being sampled\n')
+        

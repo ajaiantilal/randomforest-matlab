@@ -344,8 +344,19 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     end
     
     if Stratify
+        if length(orig_labels) ~= length(sampsize)
+            error('Sampsize variable should be the same as the number of unique classes in Y')
+        end
+        fprintf('ClassRF_train: Stratify in use\n')
+        for i=1:length(orig_labels)
+            fprintf('ClassRF_train: sampsize for %d class is %d\n', orig_labels(i), sampsize(i))
+        end
         if ~exist('strata','var')
             strata = Y;
+        else
+            if length(find(strata <= 0))
+                error('Strata variable should have all values > 0')
+            end
         end
         nsum = sum(sampsize);
         if ( ~isempty(find(sampsize<=0)) || nsum==0)
