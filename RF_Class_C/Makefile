@@ -38,6 +38,14 @@ mex:  rfsub
 	mex $(SRC)mex_ClassificationRF_train.cpp  $(SRC_FILES) rfsub.o -o mexClassRF_train -lgfortran -lm -DMATLAB $(MEXFLAGS) 
 	mex $(SRC)mex_ClassificationRF_predict.cpp $(SRC_FILES) rfsub.o  -o mexClassRF_predict -lgfortran -lm -DMATLAB $(MEXFLAGS)
 
+
+octave:  rfsub
+	echo -e 'Generating Octave'
+#	mex -c $(SRC)classRF.cpp -outdir $(BUILD)classRF.o -DMATLAB $(MEXFLAGS)
+	mkoctfile $(SRC)mex_ClassificationRF_train.cpp  $(SRC_FILES) rfsub.o -o mexClassRF_train -DMATLAB -DOCTAVE --mex
+	mkoctfile $(SRC)mex_ClassificationRF_predict.cpp $(SRC_FILES) rfsub.o  -o mexClassRF_predict -DMATLAB -DOCTAVE --mex
+
+
 rfsub:	$(SRC)rfsub.f
 	echo 'Compiling rfsub.f (fortran subroutines)'
 	$(FORTRAN)  $(FFLAGS) -c $(SRC)rfsub.f -o rfsub.o
@@ -51,5 +59,6 @@ clean:
 	rm *~ -rf
 	rm *.mexw32 twonorm_test -rf
 	rm *.mexa64 -rf
+	rm *.mex -rf
 	rm classRF -rf
 	rm *.exe -rf

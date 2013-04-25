@@ -9,9 +9,9 @@ clear extra_options
 
 %compile everything
 if strcmpi(computer,'PCWIN') |strcmpi(computer,'PCWIN64')
-    compile_windows
+%    compile_windows
 else
-    compile_linux
+%    compile_linux
 end
 
 total_train_time=0;

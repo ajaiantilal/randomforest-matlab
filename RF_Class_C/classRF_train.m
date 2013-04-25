@@ -180,11 +180,11 @@ function model=classRF_train(X,Y,ntree,mtry, extra_options,Xtst,Ytst)
     if ~exist('print_verbose_tree_progression','var');  print_verbose_tree_progression = FALSE; end
     
 
-    if ~exist('ntree','var') | ntree<=0
+    if ~exist('ntree','var') || ntree<=0
 		ntree=500;
         DEFAULTS_ON=1;
     end
-    if ~exist('mtry','var') | mtry<=0 | mtry>size(X,2)
+    if ~exist('mtry','var') || mtry<=0 || mtry>size(X,2)
         mtry =floor(sqrt(size(X,2)));
     end
     

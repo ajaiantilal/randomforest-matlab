@@ -47,6 +47,10 @@
 
 #define DEBUG_ON 0
 
+#ifdef OCTAVE
+    #include "stdio.h"
+#endif
+
 void regForest(double *x, double *ypred, int *mdim, int *n,
                int *ntree, int *lDaughter, int *rDaughter,
                SMALL_INT *nodestatus, int *nrnodes, double *xsplit,
