@@ -45,6 +45,10 @@
 
 #define DEBUG_ON 0
 
+#ifdef OCTAVE
+    #include "stdio.h"
+#endif
+
 void regRF(double *x, double *y, int *xdim, int *sampsize,
         int *nthsize, int *nrnodes, int *nTree, int *mtry, int *imp,
         int *cat, int maxcat, int *jprint, int doProx, int oobprox,
@@ -226,7 +230,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     plhs[9] = mxCreateNumericMatrix(ntree,1,mxDOUBLE_CLASS, mxREAL);
     double *mse = mxGetPr(plhs[9]);//(double*)calloc(ntree, sizeof(double));
-    if (DEBUG_ON) printf("mse %f\n", mse);
+    if (DEBUG_ON) printf("mse %f\n", mse[0]);
     
     int replace=(int)mxGetScalar(prhs[14]);
     if (DEBUG_ON) printf("replace %d\n", replace);
@@ -287,7 +291,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         printf("\n");
     }
 
-	int print_verbose_tree_progression = (int)mxGetScalar(prhs[15]);
+    int print_verbose_tree_progression = (int)mxGetScalar(prhs[15]);
     
     
     

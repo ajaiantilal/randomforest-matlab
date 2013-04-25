@@ -2,6 +2,10 @@
 #include "memory.h"
 #include "mex.h"
 
+#ifdef OCTAVE
+    #include "stdio.h"
+#endif
+
 #define DEBUG_ON 0
 void classRF(double *x, int *dimx, int *cl, int *ncl, int *cat, int *maxcat,
 	     int *sampsize, int *strata, int *Options, int *ntree, int *nvar,
@@ -18,9 +22,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		  int nrhs, const mxArray*prhs[] )
      
 { 
-	if(nrhs==23);
+    if(nrhs==23);
     else{
-		printf("Too less/many parameters: You supplied %d",nrhs);
+		mexPrintf("Too less/many parameters: You supplied %d",nrhs);
 		return;
 	}
     

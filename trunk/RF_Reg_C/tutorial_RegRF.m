@@ -8,9 +8,9 @@ close all
 
 %compile everything
 if strcmpi(computer,'PCWIN') |strcmpi(computer,'PCWIN64')
-   compile_windows
+%   compile_windows
 else
-   compile_linux
+%   compile_linux
 end
 
 total_train_time=0;
@@ -40,6 +40,7 @@ Y_tst = Y(randvector(401:end));
     model = regRF_train(X_trn,Y_trn);
     Y_hat = regRF_predict(X_tst,model);
     fprintf('\nexample 1: MSE rate %f\n',   sum((Y_hat-Y_tst).^2));
+
  
 % example 2:  set to 100 trees
     model = regRF_train(X_trn,Y_trn, 100);
