@@ -32,11 +32,17 @@ twonorm:  clean rfsub
 	echo 'Generating twonorm executable'
 	$(CC) $(CFLAGS) $(SRC)twonorm_C_wrapper.cpp $(SRC_FILES) rfsub.o -o twonorm_test -lgfortran -lm -DmxCalloc=calloc -DmxFree=free
 
-mex:  rfsub
+mex-old:  rfsub
 	echo 'Generating Mex'
 #	mex -c $(SRC)classRF.cpp -outdir $(BUILD)classRF.o -DMATLAB $(MEXFLAGS)
 	mex $(SRC)mex_ClassificationRF_train.cpp  $(SRC_FILES) rfsub.o -o mexClassRF_train -lgfortran -lm -DMATLAB $(MEXFLAGS) 
 	mex $(SRC)mex_ClassificationRF_predict.cpp $(SRC_FILES) rfsub.o  -o mexClassRF_predict -lgfortran -lm -DMATLAB $(MEXFLAGS)
+
+mex:  rfsub
+	echo 'Generating Mex'
+#	mex -c $(SRC)classRF.cpp -outdir $(BUILD)classRF.o -DMATLAB $(MEXFLAGS)
+	mex $(SRC)mex_ClassificationRF_train.cpp  $(SRC_FILES) rfsub.o -output mexClassRF_train -lgfortran -lm -DMATLAB $(MEXFLAGS) 
+	mex $(SRC)mex_ClassificationRF_predict.cpp $(SRC_FILES) rfsub.o  -output mexClassRF_predict -lgfortran -lm -DMATLAB $(MEXFLAGS)
 
 
 octave:  rfsub
